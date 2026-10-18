@@ -1,6 +1,6 @@
 # GitHub staging deployment
 
-Status (18 October 2026): **workflow and server scripts prepared locally; automatic deployment is not enabled or verified**. Current staging remains on its manually activated release. No deployment key, repository deployment secrets, or remote `staging` branch has been provisioned by this setup yet.
+Status (18 October 2026): **workflow published on GitHub staging branch; build/package run passed; automatic delivery remains blocked by unverified SSH transport**. Current staging remains on its manually activated release. Repository variable `STAGING_DEPLOY_ENABLED=false` explicitly disables delivery. No deployment key, repository deployment secrets, or server receiver has been provisioned by this setup yet.
 
 ## Intended flow
 
@@ -56,3 +56,9 @@ Use backward-compatible additive migrations: migrations run before the code swit
 - Disable new automatic deployments by setting `STAGING_DEPLOY_ENABLED=false`; this does not stop the currently running staging website.
 
 References: [GitHub deployments](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/control-deployments), [cPanel SSH Access](https://docs.cpanel.net/cpanel/security/ssh-access/).
+
+## GitHub verification
+
+Published commit `bfcdcb2` on the new `staging` branch. [Build and source checks](https://github.com/MehedisCode/pickparcelbd/actions/runs/39137303251) passed for frontend and backend. The [staging release workflow](https://github.com/MehedisCode/pickparcelbd/actions/runs/39137303286) passed frontend checks/build, production backend preparation, packaging, and artifact upload; the deploy job was intentionally skipped because delivery is disabled. This is verified CI/artifact generation, not a verified server deployment.
+
+Hosting support request: “Please confirm the externally reachable SSH hostname and port for cPanel user kinboame on aberi.us.svlogins.com (103.195.103.13), provide the SSH host-key SHA256 fingerprint, and confirm whether GitHub-hosted Actions runners may connect. The cPanel terminal works, but port 22 and the unconfirmed candidate 22282 did not complete external SSH connections.”
