@@ -1,0 +1,44 @@
+# Local environment and credentials
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.local.example
+**/auth.json
+**/.npmrc.local
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/service-account*.json
+**/firebase-adminsdk*.json
+
+# Installed dependencies and generated output
+**/node_modules/
+**/vendor/
+**/.next/
+**/out/
+**/coverage/
+**/*.tsbuildinfo
+**/bootstrap/cache/*.php
+
+# Development databases, dumps, uploads and runtime data
+**/*.sqlite
+**/*.sqlite-*
+**/*.sql
+**/*.sql.gz
+**/*.dump
+**/storage/logs/*
+!**/storage/logs/.gitignore
+**/storage/app/private/*
+!**/storage/app/private/.gitignore
+**/storage/app/public/*
+!**/storage/app/public/.gitignore
+.runtime/
+backups/
+
+# Editor and operating-system files
+.idea/
+.vscode/
+*.log
+.DS_Store
+Thumbs.db

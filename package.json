@@ -1,0 +1,9 @@
+{
+  "name": "pickparcelbd",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "check:web": "npm --prefix frontend run typecheck && npm --prefix frontend run lint",
+    "build:web": "npm --prefix frontend run build"
+  }
+}

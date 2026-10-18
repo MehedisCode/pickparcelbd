@@ -1,0 +1,59 @@
+name: Build and source checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build
+        env:
+          BACKEND_URL: ${{ vars.BACKEND_URL || 'http://127.0.0.1:8000' }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL || 'http://127.0.0.1:3000' }}
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, bcmath, pdo_mysql, pdo_sqlite, dom, curl, fileinfo
+          coverage: none
+          tools: composer:v2
+      - run: composer install --prefer-dist --no-interaction --no-progress
+      - run: composer validate --strict
+      - name: PHP syntax
+        run: find app bootstrap config database routes -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Formatting
+        run: vendor/bin/pint --test
+      - name: Boot and fresh schema
+        run: |
+          cp .env.local.example .env
+          touch database/database.sqlite
+          php artisan key:generate --no-interaction
+          php artisan migrate --force --no-interaction
+          php artisan route:list --path=api
+# Test cases are intentionally deferred at the owner's request.
+# Deployment is configured only after staging and transport are confirmed.
