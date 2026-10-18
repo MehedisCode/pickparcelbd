@@ -62,6 +62,6 @@ class RideController extends Controller
             abort(404);
         }
 
-return response()->json(['message' => 'Ride updated.']);
+        return response()->json(['message' => 'Ride updated.']);
     }
 }

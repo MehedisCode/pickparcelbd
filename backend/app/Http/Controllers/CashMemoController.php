@@ -104,7 +104,7 @@ class CashMemoController extends Controller
             abort_unless(in_array('buyer', $roles, true) && in_array('seller', $roles, true), 422, 'Buyer order list and seller cash memo images are required.');
             $oid = DB::table('orders')->insertGetId(['cash_memo_id' => $id, 'buyer_id' => $m->buyer_id, 'seller_id' => $m->seller_id, 'subtotal' => '0.00', 'delivery_charge' => app(Pricing::class)->delivery(1000), 'total' => app(Pricing::class)->delivery(1000), 'cod_enabled' => false, 'cod_amount' => '0.00', 'status' => 'pending', 'created_at' => now(), 'updated_at' => now()]);
             $p = $orders->confirm($r->user(), $oid);
-            DB::table('cash_memos')->where('id',$id)->update(['status' => 'sent_to_pickparcel', 'updated_at' => now()]);
+            DB::table('cash_memos')->where('id', $id)->update(['status' => 'sent_to_pickparcel', 'updated_at' => now()]);
 
             return response()->json(['order_id' => $oid, 'parcel_code' => $p->code, 'message' => 'Cash memo sent for delivery.']);
         }, 3);

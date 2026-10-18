@@ -80,7 +80,7 @@ class TransferController extends Controller
             fwrite($f, "\xEF\xBB\xBF");
             fputcsv($f, ['Parcel', 'Recipient', 'District', 'Status', 'Received at'], ',', '"', '');
             foreach ($rows as $row) {
-                fputcsv($f, array_map(fn ($v) => is_string($v) && preg_match('/^[=+@\-]/',$v) ? "'".$v : $v, (array) $row), ',', '"', '');
+                fputcsv($f, array_map(fn ($v) => is_string($v) && preg_match('/^[=+@\-]/', $v) ? "'".$v : $v, (array) $row), ',', '"', '');
             }fclose($f);
         }, 'transfer-'.$id.'.csv', ['Content-Type' => 'text/csv; charset=utf-8']);
     }

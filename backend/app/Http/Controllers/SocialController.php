@@ -25,7 +25,7 @@ class SocialController extends Controller
                 $activity->notify($id, 'follow', 'নতুন ফলোয়ার', $r->user()->name.' followed you.', '/sellers/'.$r->user()->public_id, $r->user()->id);
             }
 
-return response()->json(['following' => ! $exists]);
+            return response()->json(['following' => ! $exists]);
         });
     }
 
@@ -85,6 +85,6 @@ return response()->json(['following' => ! $exists]);
     {
         $d = $r->validate(['search' => 'required|string|min:2|max:100']);
 
-        return response()->json(['data' => User::where(fn ($q) => $q->where('name', 'like', '%'.$d['search'].'%')->orWhere('public_id',$d['search']))->limit(20)->get(['id', 'public_id', 'name', 'avatar_url', 'district', 'verified'])]);
+        return response()->json(['data' => User::where(fn ($q) => $q->where('name', 'like', '%'.$d['search'].'%')->orWhere('public_id', $d['search']))->limit(20)->get(['id', 'public_id', 'name', 'avatar_url', 'district', 'verified'])]);
     }
 }

@@ -17,5 +17,5 @@ Route::get('media/public/{path}', function (string $path) {
     abort_unless(Storage::disk('public')->exists($path), 404);
 
     return response()->file(Storage::disk('public')->path($path), ['X-Content-Type-Options' => 'nosniff', 'Cache-Control' => 'public, max-age=86400']);
-})->where('path','.*');
+})->where('path', '.*');
 require __DIR__.'/compatibility.php';

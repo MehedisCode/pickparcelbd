@@ -39,7 +39,7 @@ class RideService
                     $this->activity->notify($active->driver_id, 'ride_location_changed', 'Ride updated', 'Your passenger updated the pickup or destination.', '/ride-share/driver', $u->id);
                 }
 
-return $active->id;
+                return $active->id;
             }
             $id = DB::table('rides')->insertGetId($values + ['passenger_id' => $u->id, 'status' => 'searching', 'created_at' => now()]);
             $drivers = DB::table('driver_states')->where('available', true)->where('user_id', '<>', $u->id)->where('location_updated_at', '>=', now()->subMinutes(15))->get();
@@ -88,7 +88,7 @@ return $active->id;
             DB::table('rides')->where('id', $id)->update(['status' => 'cancelled', 'updated_at' => now()]);
             $other = $u->id === (int) $ride->passenger_id ? $ride->driver_id : $ride->passenger_id;
             if ($other) {
-                $this->activity->notify($other,'ride_cancelled','রাইড বাতিল হয়েছে',$u->name.' cancelled ride #'.$id,'/ride-share',$u->id);
+                $this->activity->notify($other, 'ride_cancelled', 'রাইড বাতিল হয়েছে', $u->name.' cancelled ride #'.$id, '/ride-share', $u->id);
             }
         }, 3);
     }

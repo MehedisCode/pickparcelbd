@@ -49,8 +49,8 @@ class FinancialRecovery
             } else {
                 abort(404);
             }
-            $this->activity->audit($admin,$action,'parcel',$p->id,$before,(array) DB::table('parcels')->find($p->id),$reason);
-            $this->activity->event($p->id,$admin->id,$action,$reason,['beneficiary_id' => $userId]);
+            $this->activity->audit($admin, $action, 'parcel', $p->id, $before, (array) DB::table('parcels')->find($p->id), $reason);
+            $this->activity->event($p->id, $admin->id, $action, $reason, ['beneficiary_id' => $userId]);
         }, 3);
     }
 }

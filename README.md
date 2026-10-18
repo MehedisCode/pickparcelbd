@@ -4,16 +4,25 @@ Next.js 16 / React 19 / TypeScript interface, Laravel 13 API, and MariaDB produc
 
 ## Local setup
 
-Use Node.js 24, Composer 2, and PHP 8.4 with BCMath, PDO SQLite/MySQL, Mbstring, Fileinfo, OpenSSL, DOM/XML, Curl and Tokenizer.
+Use Node.js 24, Composer 2, and PHP 8.4 or 8.5 with BCMath, PDO SQLite/MySQL, Mbstring, Fileinfo, OpenSSL, DOM/XML, Curl and Tokenizer. Production hosting is planned for PHP 8.4.
+
+On Ubuntu 26.04, install the system tools first (enter your sudo password in your own terminal):
+
+```bash
+sudo apt update
+sudo apt install php8.5-cli php8.5-bcmath php8.5-mbstring php8.5-xml php8.5-curl php8.5-sqlite3 php8.5-mysql composer unzip
+php --version
+composer --version
+```
 
 From this project directory:
 
 ```bash
 cd backend
 composer install
-cp .env.local.example .env
+if [ ! -f .env ]; then cp .env.local.example .env; fi
 touch database/database.sqlite
-php artisan key:generate
+if ! grep -Eq '^APP_KEY=.+$' .env; then php artisan key:generate; fi
 php artisan migrate
 php artisan db:seed
 cd ../frontend
@@ -25,6 +34,10 @@ npm run dev
 Staging URLs have not been chosen. Open [the local app](http://127.0.0.1:3000) for review. The sign-in page provides fictional seller, buyer, rider, agent and district-admin accounts in local mode. Preview sign-in requires both `APP_ENV=local` and `PREVIEW_LOGIN=true`; it cannot be enabled in production by that flag alone.
 
 On the current workstation, PHP was provisioned in an isolated temporary directory because no system PHP was installed. While that runtime exists, use `PICKPARCEL_PHP=/tmp/pickparcel-runtime/php npm run dev`. For Artisan commands use `/tmp/pickparcel-runtime/php artisan ...`. It is a development convenience, not a deployment dependency.
+
+Run the initial setup once. On later starts, run only `npm run dev` from the project root. Keep that terminal open, and use Ctrl+C to stop both servers before starting another copy. The launcher checks ports 3000/8000 and reports a clear error if another server is running. npm deprecation/install-script warnings do not explain an occupied port.
+
+Do not overwrite an existing `.env` or regenerate an existing `APP_KEY`: encrypted parcel codes and sessions depend on that key. If the key has already been lost, restore it from a private backup before reusing that database. A separate new development database can be initialized for fictional preview data while preserving the previous file. See [Laravel encryption configuration](https://laravel.com/docs/13.x/encryption) and [Composer installation](https://getcomposer.org/doc/00-intro.md).
 
 Use `127.0.0.1` consistently; mixing it with `localhost` creates separate cookie origins. The frontend proxies API, authentication and uploaded-media requests to port 8000.
 
