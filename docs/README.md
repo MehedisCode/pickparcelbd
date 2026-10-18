@@ -42,6 +42,7 @@ Keep new documents in the matching directory and add them to this index. Keep im
 | Document | Purpose |
 | --- | --- |
 | [Architecture](architecture/architecture.md) | Application boundaries, authentication, data and hosting decisions |
+| [Google authentication](architecture/authentication.md) | Signup/login flow, private configuration, callback mismatch blocker and verification evidence |
 | [API design](architecture/api-design.md) | Proposed API conventions and endpoint groups |
 | [Folder structure](architecture/folder-structure.md) | Proposed application layout and current documentation organization |
 | [Roles and permissions](architecture/roles-permissions.md) | Authorization model and access verification |
@@ -69,6 +70,7 @@ Keep new documents in the matching directory and add them to this index. Keep im
 | Document | Purpose |
 | --- | --- |
 | [Deployment plan](deployment/plan.md) | Environments, cPanel prerequisites, jobs and CI/CD |
+| [Staging database](deployment/staging-database.md) | Provisioned cPanel schema, verified metadata, pending credentials and connection steps |
 | [Production runbook](deployment/production-runbook.md) | Future release, validation and rollback procedure |
 
 ## Evidence and limits

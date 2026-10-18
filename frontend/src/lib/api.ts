@@ -13,6 +13,7 @@ export class ApiError extends Error {
 export async function request<T>(
   path: string,
   options: RequestInit = {},
+  csrfRetried = false,
 ): Promise<T> {
   const headers = new Headers(options.headers);
   headers.set("Accept", "application/json");
@@ -52,6 +53,29 @@ export async function request<T>(
   const body = await response
     .json()
     .catch(() => ({ message: "The server returned an unexpected response." }));
+  if (
+    response.status === 419 &&
+    !csrfRetried &&
+    options.method &&
+    options.method !== "GET"
+  ) {
+    const csrf = await fetch("/sanctum/csrf-cookie", {
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      cache: "no-store",
+    });
+    if (csrf.ok) return request<T>(path, options, true);
+  }
+  if (response.status === 401) {
+    window.dispatchEvent(new Event("pickparcel:session-expired"));
+    throw new ApiError(
+      "Your session has expired. Please sign in again to continue.",
+      401,
+    );
+  }
   if (!response.ok)
     throw new ApiError(
       body.message || "Something went wrong.",

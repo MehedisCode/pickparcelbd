@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\Pricing;
+use App\Support\AuthNavigation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,7 +14,7 @@ class PublicController extends Controller
 
     public function config()
     {
-        return response()->json(['geocoding_available' => (bool) config('pickparcel.geocoding_enabled'), 'rates' => $this->pricing->rates(), 'categories' => ['all', 'fashion', 'electronics', 'home', 'beauty', 'food', 'other'], 'support' => ['email' => config('pickparcel.support_email'), 'phone' => config('pickparcel.support_phone')], 'google_available' => (bool) config('services.google.client_id')]);
+        return response()->json(['geocoding_available' => (bool) config('pickparcel.geocoding_enabled'), 'rates' => $this->pricing->rates(), 'categories' => ['all', 'fashion', 'electronics', 'home', 'beauty', 'food', 'other'], 'support' => ['email' => config('pickparcel.support_email'), 'phone' => config('pickparcel.support_phone')], 'google_available' => AuthNavigation::configured()]);
     }
 
     public function products(Request $r)

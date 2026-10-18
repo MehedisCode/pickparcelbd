@@ -49,6 +49,17 @@ export function Providers({ children }: { children: React.ReactNode }) {
       active = false;
     };
   }, []);
+  useEffect(() => {
+    const expired = () => {
+      setSession((current) =>
+        current ? { ...current, user: null, profile_complete: false } : current,
+      );
+      setError(undefined);
+    };
+    window.addEventListener("pickparcel:session-expired", expired);
+    return () =>
+      window.removeEventListener("pickparcel:session-expired", expired);
+  }, []);
   const userId = session?.user?.id;
   useEffect(() => {
     if (!userId) return;

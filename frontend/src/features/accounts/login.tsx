@@ -1,24 +1,46 @@
 "use client";
 import { useAction, useSession } from "@/components/providers";
 import { PublicFooter, PublicHeader } from "@/components/shell";
-import { Button } from "@/components/ui";
+import { Button, ErrorState, Loading } from "@/components/ui";
 import { useResource } from "@/hooks/use-resource";
 import { api } from "@/lib/api";
+import { accountHome, safeReturnPath } from "@/lib/auth-navigation";
 import { CheckCircle2, Package, ShieldCheck, Truck } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
+const loginErrors: Record<string, string> = {
+  cancelled:
+    "Google sign-in was cancelled. You can try again when you’re ready.",
+  expired:
+    "This sign-in link has expired or was opened directly. Start again with Continue with Google.",
+  failed:
+    "Google sign-in could not be completed. Please start again. If the problem continues, contact support.",
+  unavailable:
+    "Google sign-in is temporarily unavailable. Please try again later.",
+  unverified: "Please choose a Google account with a verified email address.",
+  account_conflict:
+    "An existing account uses this email. Use its original Google account or contact support to restore access.",
+};
+
 export function LoginScreen() {
   const { session, reload } = useSession();
-  const { data } = useResource<{ google_available: boolean }>("/config");
+  const {
+    data,
+    error,
+    loading,
+    reload: reloadConfig,
+  } = useResource<{ google_available: boolean }>("/config");
   const { run, busy } = useAction();
   const router = useRouter();
   const params = useSearchParams();
-  const raw = params.get("return") || "/dashboard";
-  const target =
-    raw.startsWith("/") && !raw.startsWith("//") && !raw.includes("\\")
-      ? raw
-      : "/dashboard";
+  const requestedReturn = safeReturnPath(params.get("return"), "");
+  const target = requestedReturn || accountHome(session?.user);
+  const loginError = loginErrors[params.get("error") || ""];
+  const continueTo =
+    session?.user && !session.profile_complete
+      ? `/complete-profile?return=${encodeURIComponent(target)}`
+      : target;
   return (
     <>
       <PublicHeader />
@@ -55,16 +77,29 @@ export function LoginScreen() {
         <section className="login-form-wrap">
           <span className="eyebrow">WELCOME TO PICKPARCELBD</span>
           <h1>Let’s get you moving.</h1>
-          <p>Sign in with your Google account to pick up where you left off.</p>
+          <p>
+            New here? Continue with Google to create your account. Already
+            registered? Use the same Google account to sign in.
+          </p>
+          {loginError && (
+            <div className="info-notice" role="alert">
+              <ShieldCheck size={20} />
+              <p>{loginError}</p>
+            </div>
+          )}
           {session?.user ? (
-            <Link className="button primary full-width" href={target}>
+            <Link className="button primary full-width" href={continueTo}>
               Continue as {session.user.name.split(" ")[0]}{" "}
               <CheckCircle2 size={17} />
             </Link>
+          ) : loading ? (
+            <Loading />
+          ) : error ? (
+            <ErrorState message={error} retry={reloadConfig} />
           ) : data?.google_available ? (
             <a
               className="google-button"
-              href={`/auth/google?return=${encodeURIComponent(target)}`}
+              href={`/auth/google${requestedReturn ? `?return=${encodeURIComponent(requestedReturn)}` : ""}`}
             >
               <span className="google-g">G</span>Continue with Google
             </a>
@@ -72,8 +107,8 @@ export function LoginScreen() {
             <div className="info-notice">
               <ShieldCheck size={20} />
               <p>
-                Google sign-in will be available once this environment’s OAuth
-                credentials are configured.
+                Google sign-in is temporarily unavailable. Please try again
+                later.
               </p>
             </div>
           )}

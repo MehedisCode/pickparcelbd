@@ -1,6 +1,6 @@
 # Environments, hosting and CI/CD plan
 
-No environments, workflows, credentials, applications or hosting settings have been created by this documentation task.
+This document describes the deployment plan. Local applications and a GitHub CI workflow now exist. The separate cPanel staging database/schema has been provisioned; the owner created both dedicated database users and their scoped cPanel privileges were verified. Private backend configuration and deployment remain pending. See [staging database status](staging-database.md) and [implementation status](../project/implementation-status.md) for current evidence.
 
 ## Environments
 
@@ -11,7 +11,7 @@ No environments, workflows, credentials, applications or hosting settings have b
 | Staging | Full rehearsal and device testing | Separate database/files, staging OAuth and controlled FCM recipients |
 | Production | Authorized live release | Existing business records, actual providers and restricted secrets |
 
-Document exact commands and version requirements after scaffolding. Do not invent working setup commands before the applications exist. Include Node/package manager, PHP/Composer, database, environment setup, migrations, fixtures and test execution.
+The project README records local setup commands and runtime requirements. Staging configuration starts from `backend/.env.staging.example`; complete private credentials and hostname settings before deploying it.
 
 ## Hosting arrangement
 
@@ -94,7 +94,7 @@ Keep private files outside public URLs, preserve persistent uploads between rele
 
 ## Implemented CI and local runtime
 
-The project includes `.github/workflows/ci.yml` for frontend types/lint/build and PHP syntax/formatting/dependency/schema-boot checks. Test cases are intentionally omitted. It runs when `PickparcelBD_new` is the repository root; it has not executed on GitHub yet. No deployment credentials, cPanel Git repository, cron entry or live runtime setting were created.
+The project includes `.github/workflows/ci.yml` for frontend types/lint/build and PHP syntax/formatting/dependency/schema-boot checks. Test cases are intentionally omitted. It runs with `PickparcelBD_new` as the repository root and has executed on GitHub; results are available in repository Actions. No deployment credentials, cPanel Git repository, cron entry or live application runtime setting were created.
 
 Build Next.js on CI or a development machine, outside the cPanel account’s 1 GB memory allowance. Set `BACKEND_URL` before the build. Use a separate Next.js host and cPanel PHP/MariaDB for the API after staging verification. cPanel Node selector availability alone is not a capacity guarantee.
 
