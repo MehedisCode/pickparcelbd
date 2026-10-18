@@ -1,0 +1,94 @@
+name: Deploy staging
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pickparcel-staging-deploy
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, bcmath, pdo_mysql, dom, curl, fileinfo
+          coverage: none
+          tools: composer:v2
+      - name: Build and check frontend
+        working-directory: frontend
+        env:
+          BACKEND_URL: https://staging-api.pickparcelbd.com
+          NEXT_PUBLIC_SITE_URL: https://staging.pickparcelbd.com
+        run: |
+          npm ci
+          npm run typecheck
+          npm run lint
+          npm run build
+      - name: Prepare backend runtime
+        working-directory: backend
+        run: |
+          composer validate --strict
+          composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress --no-scripts
+          find app bootstrap config database routes -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Package release
+        run: bash scripts/deployment/package-staging.sh
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: staging-${{ github.sha }}
+          path: |
+            staging-release.tar.gz
+            staging-release.sha256
+          retention-days: 7
+          if-no-files-found: error
+      - name: Report deployment readiness
+        if: vars.STAGING_DEPLOY_ENABLED != 'true'
+        run: echo 'Build packaged successfully. Automatic deployment is disabled until SSH transport and secrets are verified.' >> "$GITHUB_STEP_SUMMARY"
+  deploy:
+    needs: build
+    if: vars.STAGING_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: staging-${{ github.sha }}
+      - name: Upload and activate staging release
+        env:
+          DEPLOY_KEY: ${{ secrets.STAGING_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.STAGING_KNOWN_HOSTS }}
+          DEPLOY_HOST: ${{ vars.STAGING_SSH_HOST }}
+          DEPLOY_PORT: ${{ vars.STAGING_SSH_PORT }}
+          DEPLOY_USER: kinboame
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${DEPLOY_KEY:?Missing STAGING_SSH_KEY}"
+          : "${KNOWN_HOSTS:?Missing STAGING_KNOWN_HOSTS}"
+          : "${DEPLOY_HOST:?Missing STAGING_SSH_HOST}"
+          : "${DEPLOY_PORT:?Missing STAGING_SSH_PORT}"
+          [[ "$DEPLOY_PORT" =~ ^[0-9]+$ ]]
+          umask 077
+          mkdir -p "$HOME/.ssh"
+          printf '%s\n' "$DEPLOY_KEY" > "$HOME/.ssh/staging_deploy"
+          printf '%s\n' "$KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          trap 'rm -f "$HOME/.ssh/staging_deploy"' EXIT
+          sha256sum -c staging-release.sha256
+          digest=$(sha256sum staging-release.tar.gz | cut -d ' ' -f 1)
+          ssh -i "$HOME/.ssh/staging_deploy" -p "$DEPLOY_PORT" \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o ConnectTimeout=20 -o ServerAliveInterval=30 -o ServerAliveCountMax=5 \
+            "$DEPLOY_USER@$DEPLOY_HOST" "deploy $GITHUB_SHA $digest" < staging-release.tar.gz

@@ -1,6 +1,6 @@
 # Environments, hosting and CI/CD plan
 
-This document describes the deployment plan. Local applications and a GitHub CI workflow now exist. The separate cPanel staging database/schema has been provisioned; the owner created both dedicated database users and their scoped cPanel privileges were verified. Private backend configuration and deployment remain pending. See [staging database status](staging-database.md) and [implementation status](../project/implementation-status.md) for current evidence.
+This document describes the deployment plan. Local applications and a GitHub CI workflow now exist. The separate cPanel staging database/schema has been provisioned; the owner created both dedicated database users and their scoped cPanel privileges were verified. The separate staging release, domains, HTTPS and maintenance-mode Node registration are now prepared. Runtime database password entry, connectivity checks, Google callback configuration and final activation remain pending. See [staging database status](staging-database.md) and [implementation status](../project/implementation-status.md) for current evidence.
 
 ## Environments
 
@@ -15,7 +15,7 @@ The project README records local setup commands and runtime requirements. Stagin
 
 ## Hosting arrangement
 
-Proposed: Next.js on a suitable separate host; Laravel API plus MariaDB on current cPanel. Plan frontend/API hostnames together for session and OAuth behavior. Deploy Laravel outside the public document directory with only its `public/` directory exposed. Persist storage, environment settings and logs independently of release files.
+The owner selected Next.js, Laravel and MariaDB on the current cPanel account. Node.js 24.21.0 and PHP 8.4.26 are available; the staging release is prepared in maintenance mode. See [the cPanel staging runbook](cpanel-staging.md). Plan frontend/API hostnames together for session and OAuth behavior. Deploy Laravel outside the public document directory with only its `public/` directory exposed. Persist storage, environment settings and logs independently of release files.
 
 For Laravel 13, official documentation requires PHP 8.3 or newer. The panel offers 8.3/8.4 but currently uses 8.2. Verify both web and CLI runtimes, required extensions and dependency compatibility before changing the runtime during an authorized deployment.
 
@@ -96,6 +96,6 @@ Keep private files outside public URLs, preserve persistent uploads between rele
 
 The project includes `.github/workflows/ci.yml` for frontend types/lint/build and PHP syntax/formatting/dependency/schema-boot checks. Test cases are intentionally omitted. It runs with `PickparcelBD_new` as the repository root and has executed on GitHub; results are available in repository Actions. No deployment credentials, cPanel Git repository, cron entry or live application runtime setting were created.
 
-Build Next.js on CI or a development machine, outside the cPanel account’s 1 GB memory allowance. Set `BACKEND_URL` before the build. Use a separate Next.js host and cPanel PHP/MariaDB for the API after staging verification. cPanel Node selector availability alone is not a capacity guarantee.
+Build Next.js on CI or a development machine, outside the cPanel account’s 1 GB memory allowance. Set `BACKEND_URL` before the build. Use the registered cPanel Node app and separate PHP/MariaDB staging backend after verification, following the owner’s hosting choice. cPanel Node selector availability alone is not a capacity guarantee.
 
 Laravel’s scheduler has an every-minute bounded database worker, transfer expiry and presence expiry. Configure `DB_QUEUE_RETRY_AFTER=300`, exceeding the 120-second job timeout. The worker’s 45-second maximum is checked between jobs, so a running delivery may finish later. Review cron process overlap and actual host limits in staging.

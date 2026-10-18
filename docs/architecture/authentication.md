@@ -76,3 +76,7 @@ Cloud Console did not finish loading in the in-app browser, and the owner report
 - These checks are not a committed automated application test suite, as requested. Real Google token exchange, successful real-account signup/login, staging cookies and Android/WebView login remain unverified until provider configuration and device checks are completed.
 
 Local preview accounts remain a separate development feature, enabled only with local environment plus `PREVIEW_LOGIN=true`. They do not verify real Google authentication and cannot be enabled in production by that flag alone.
+
+## cPanel staging preparation
+
+The owner selected `https://staging.pickparcelbd.com` for Next.js and `https://staging-api.pickparcelbd.com` for Laravel, both in cPanel. The existing local Google client was copied into the private staging backend configuration with the owner’s explicit approval. The staging callback is `https://staging.pickparcelbd.com/auth/google/callback`; its addition in Google Cloud remains pending because the Clients page failed to load after Retry. Do not treat provider setup or real staged login as verified. Both hosted applications remain in maintenance mode pending the runtime database password and final checks; see [staging deployment](../deployment/cpanel-staging.md).

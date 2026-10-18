@@ -1,6 +1,6 @@
 # cPanel staging database
 
-Provisioning date: 18 October 2026. The owner selected a staging database for a future cPanel-hosted Laravel backend. The Ubuntu app continues to use its existing local SQLite database.
+Provisioning date: 18 October 2026. The owner selected a staging database for a cPanel-hosted Laravel backend. The Ubuntu app continues to use its existing local SQLite database.
 
 ## Current state
 
@@ -8,14 +8,15 @@ Provisioning date: 18 October 2026. The owner selected a staging database for a 
 | --- | --- |
 | Database | `kinboame_pp_staging`, created through cPanel Manage My Databases |
 | Server | MariaDB 11.4.13, on the cPanel host |
-| Future backend connection | `localhost`, port `3306`; no remote access rule added |
+| Backend connection target | `localhost`, port `3306`; no remote access rule added |
 | Database/table collation | `utf8mb4_unicode_ci` |
 | Tables | 41, all InnoDB and UTF-8 (`utf8mb4`) |
 | Constraints | 63 foreign keys, 23 unique indexes excluding primary keys |
 | Laravel migration history | All six current migrations recorded in batch 1 |
 | Application records | No seed or legacy import; `users` and `parcels` each verified empty |
 | Dedicated accounts/grants | Owner created both users; cPanel privilege settings verified as listed below |
-| Backend deployment/connection | Pending; no staging backend is deployed or connected |
+| Selected API hostname | `https://staging-api.pickparcelbd.com`; domain and HTTPS ready |
+| Backend deployment/connection | Staging API activated; six migrations and transactional runtime CRUD checks passed |
 
 The existing production database `kinboame_pickparcelbd` and its database user were not modified. No production rows, local preview accounts, Google secrets or private uploads were imported.
 
@@ -47,11 +48,11 @@ Verified accounts, both listed only under `kinboame_pp_staging` in cPanel:
 | Laravel web requests, queue and scheduler | `pp_stg_app` → `kinboame_pp_stg_app` | SELECT, INSERT, UPDATE, DELETE |
 | Reviewed deployment migrations | `pp_stg_mig` → `kinboame_pp_stg_mig` | SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP, REFERENCES |
 
-Do not select ALL PRIVILEGES or GRANT OPTION. The migration account can change or drop staging tables; keep its credentials separate from the running application's `.env` and use it only for reviewed deployments. Do not attach either account to production. The owner applied the grants. Read-only inspection of each cPanel privileges page confirmed exactly the permissions listed above, with ALL PRIVILEGES and all other displayed options unchecked. The production database lists only its original user. No passwords were inspected, copied or changed during verification. Actual authentication and effective runtime behavior still await backend deployment.
+Do not select ALL PRIVILEGES or GRANT OPTION. The migration account can change or drop staging tables; keep its credentials separate from the running application's `.env` and use it only for reviewed deployments. Do not attach either account to production. The owner applied the grants. Read-only inspection of each cPanel privileges page confirmed exactly the permissions listed above, with ALL PRIVILEGES and all other displayed options unchecked. The production database lists only its original user. No passwords were inspected, copied or changed during verification. The initial authentication check returned error 1045. After an owner-performed password reset and private re-entry, Laravel authentication, six migration records and transactional SELECT/INSERT/UPDATE/DELETE checks passed. All temporary changes were rolled back. A schema-privileges metadata query returned no rows, so the complete effective grant set was not independently established by that query.
 
-## Backend configuration when hosting is ready
+## Backend configuration
 
-Use `backend/.env.staging.example` as a template **on the future cPanel backend**. Its secrets and URLs are deliberately blank. Do not copy it over Ubuntu's working `.env`.
+Use `backend/.env.staging.example` as a template for the cPanel backend. Both hostnames and the callback are configured. A persistent private server environment and separate APP_KEY are prepared; the owner saved the corrected database password privately and Laravel authentication passed. Configuration, route and view caches were built successfully. See [current deployment state](cpanel-staging.md). Do not copy it over Ubuntu's working `.env`.
 
 1. Select staging frontend/API hostnames and configure HTTPS and the backend's `public/` document root. Verify supported PHP web/CLI versions and `pdo_mysql` before deployment.
 2. Keep the backend `.env` outside the public document root and Git, with access restricted to the account owner. Add the runtime database password privately. Generate one staging APP_KEY and preserve it between releases; do not reuse the local/production key.

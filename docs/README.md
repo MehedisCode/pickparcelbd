@@ -2,13 +2,13 @@
 
 Planning date: 18 October 2026 (Asia/Dhaka).
 
-Status: the replacement application is implemented locally with a separate development database. See [implementation status](project/implementation-status.md) for verified workflows, outstanding parity work and production prerequisites, and [the old/new comparison](features/old-vs-new-feature-comparison.md) for confirmed feature gaps. The GitHub CI workflow has run; its latest result is available in repository Actions. Production data migration and deployment have not occurred.
+Status: the replacement application is implemented locally with a separate development database. The separate cPanel staging frontend and API are active. See [staging deployment](deployment/cpanel-staging.md) for verification and remaining login checks, and [GitHub staging deployment](deployment/github-staging.md) for the prepared CI/CD workflow and SSH transport blocker. See [implementation status](project/implementation-status.md) for verified workflows, outstanding parity work and production prerequisites, and [the old/new comparison](features/old-vs-new-feature-comparison.md) for confirmed feature gaps. The GitHub CI workflow has run; its latest result is available in repository Actions. Production data migration and deployment have not occurred.
 
 ## Objective
 
 Rebuild the functionality in `PickparcelBD_old` inside `PickparcelBD_new`, using a maintainable interface and backend. Preserve intended business behavior, existing identities, parcel history, financial records and relevant mobile integrations. Verify the replacement before moving production traffic.
 
-The proposed stack is Next.js with TypeScript for the web interface, Laravel for the API and jobs, and the existing MariaDB database technology. The recommended initial hosting arrangement is a separate Next.js host and the Laravel backend on the existing cPanel account, subject to deployment checks.
+The proposed stack is Next.js with TypeScript for the web interface, Laravel for the API and jobs, and the existing MariaDB database technology. The owner selected cPanel for both Next.js and Laravel, with a separate staging MariaDB database. Runtime and resource limits are recorded in the staging deployment guide.
 
 ## Start here
 
@@ -71,6 +71,7 @@ Keep new documents in the matching directory and add them to this index. Keep im
 | --- | --- |
 | [Deployment plan](deployment/plan.md) | Environments, cPanel prerequisites, jobs and CI/CD |
 | [Staging database](deployment/staging-database.md) | Provisioned cPanel schema, verified metadata, pending credentials and connection steps |
+| [cPanel staging deployment](deployment/cpanel-staging.md) | Uploaded release, Node/PHP runtime, staging hosts, maintenance holds and activation steps |
 | [Production runbook](deployment/production-runbook.md) | Future release, validation and rollback procedure |
 
 ## Evidence and limits
@@ -93,3 +94,5 @@ The original planning checklists remain release criteria. An unchecked item must
 ## First implementation milestone
 
 Finish the source-to-feature map, inspect the database structure and missing dependencies, and turn each feature family into actionable acceptance cases. Then scaffold the applications and build the shared authentication and permission foundation.
+
+- [GitHub staging deployment](deployment/github-staging.md): workflow, private server setup, transport blocker, migrations and rollback.
