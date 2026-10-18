@@ -1,8 +1,8 @@
-# PickParcelBD replacement application plan
+# PickParcelBD documentation
 
 Planning date: 18 October 2026 (Asia/Dhaka).
 
-Status: the replacement application is implemented locally with a separate development database. See [implementation status](implementation-status.md) for verified workflows, outstanding parity work and production prerequisites. CI configuration is written but has not run on GitHub; production data migration and deployment have not occurred.
+Status: the replacement application is implemented locally with a separate development database. See [implementation status](project/implementation-status.md) for verified workflows, outstanding parity work and production prerequisites, and [the old/new comparison](features/old-vs-new-feature-comparison.md) for confirmed feature gaps. The GitHub CI workflow has run; its latest result is available in repository Actions. Production data migration and deployment have not occurred.
 
 ## Objective
 
@@ -10,24 +10,64 @@ Rebuild the functionality in `PickparcelBD_old` inside `PickparcelBD_new`, using
 
 The proposed stack is Next.js with TypeScript for the web interface, Laravel for the API and jobs, and the existing MariaDB database technology. The recommended initial hosting arrangement is a separate Next.js host and the Laravel backend on the existing cPanel account, subject to deployment checks.
 
-## Documentation map
+## Start here
+
+Read [current implementation status](project/implementation-status.md) for delivered work and verification evidence, then [the old vs new comparison](features/old-vs-new-feature-comparison.md) for the remaining feature gaps.
+
+## Directory guide
+
+```text
+docs/
+├── README.md          # Documentation index
+├── project/           # Plans, current status, risks and acceptance criteria
+├── architecture/      # System/API design, permissions, source attribution and layout
+├── features/          # Feature inventory, comparison and business workflows
+├── migration/         # Legacy mapping, database migration and mobile compatibility
+└── deployment/        # Hosting plan and production release runbook
+```
+
+Keep new documents in the matching directory and add them to this index. Keep implementation evidence in the status document and feature gaps in the comparison; planning documents describe intended work and release criteria.
+
+## Project
 
 | Document | Purpose |
 | --- | --- |
-| [Current implementation status](implementation-status.md) | Delivered local code, checks and outstanding work |
-| [Implementation plan](implementation-plan.md) | Phases, dependencies, deliverables and completion gates |
-| [Legacy action map](legacy-action-map.md) | Cross-reference for 96 inspected legacy actions and deliberate redesigns |
-| [Feature inventory](feature-inventory.md) | Existing capabilities and the parity checklist |
-| [Architecture](architecture.md) | Application boundaries, authentication, data and hosting decisions |
-| [Folder structure](folder-structure.md) | Proposed repository layout and naming conventions |
-| [Database migration](database-migration.md) | Schema discovery, identifiers, migration and reconciliation |
-| [Roles and permissions](roles-permissions.md) | Authorization model and access verification |
-| [Parcel lifecycle](parcel-lifecycle.md) | Booking, assignments, verification, handovers and returns |
-| [Financial rules](financial-rules.md) | COD, commissions, settlements, wallets and integrity checks |
-| [API design](api-design.md) | Proposed API conventions and endpoint groups |
-| [Mobile and legacy compatibility](mobile-compatibility.md) | Android, FCM, OAuth, public URLs and existing files |
-| [Testing and acceptance](acceptance-checklist.md) | Meaningful tests, user journeys and release criteria |
-| [Decisions and risks](decisions-risks.md) | Evidence, assumptions and unresolved decisions |
+| [Current implementation status](project/implementation-status.md) | Delivered local code, checks and outstanding work |
+| [Implementation plan](project/implementation-plan.md) | Phases, dependencies, deliverables and completion gates |
+| [Decisions and risks](project/decisions-risks.md) | Evidence, assumptions and unresolved decisions |
+| [Testing and acceptance](project/acceptance-checklist.md) | Deferred test cases, user journeys and release criteria |
+
+## Architecture
+
+| Document | Purpose |
+| --- | --- |
+| [Architecture](architecture/architecture.md) | Application boundaries, authentication, data and hosting decisions |
+| [API design](architecture/api-design.md) | Proposed API conventions and endpoint groups |
+| [Folder structure](architecture/folder-structure.md) | Proposed application layout and current documentation organization |
+| [Roles and permissions](architecture/roles-permissions.md) | Authorization model and access verification |
+| [Data sources](architecture/data-sources.md) | Attribution and origins of bundled data, assets and reference material |
+
+## Features
+
+| Document | Purpose |
+| --- | --- |
+| [Feature inventory](features/feature-inventory.md) | Existing capabilities and the parity checklist |
+| [Old vs new feature comparison](features/old-vs-new-feature-comparison.md) | Implemented workflows, nine confirmed gaps, pending integrations and priorities |
+| [Parcel lifecycle](features/parcel-lifecycle.md) | Booking, assignments, verification, handovers and returns |
+| [Financial rules](features/financial-rules.md) | COD, commissions, settlements, wallets and integrity checks |
+
+## Migration
+
+| Document | Purpose |
+| --- | --- |
+| [Database migration](migration/database-migration.md) | Schema discovery, identifiers, migration and reconciliation |
+| [Legacy action map](migration/legacy-action-map.md) | Cross-reference for 96 inspected legacy actions and deliberate redesigns |
+| [Mobile and legacy compatibility](migration/mobile-compatibility.md) | Android, FCM, OAuth, public URLs and existing files |
+
+## Deployment
+
+| Document | Purpose |
+| --- | --- |
 | [Deployment plan](deployment/plan.md) | Environments, cPanel prerequisites, jobs and CI/CD |
 | [Production runbook](deployment/production-runbook.md) | Future release, validation and rollback procedure |
 

@@ -1,4 +1,4 @@
-> Current implementation: replacement migrations create a separate normalized database. No legacy rows have been imported. `php artisan pickparcel:legacy-schema` can capture columns, indexes and foreign-key metadata using a configured SELECT-only account; its output stays in private ignored storage. It does not implement record transformation or financial reconciliation. Read [implementation status](implementation-status.md) before running any migration.
+> Current implementation: replacement migrations create a separate normalized database. No legacy rows have been imported. `php artisan pickparcel:legacy-schema` can capture columns, indexes and foreign-key metadata using a configured SELECT-only account; its output stays in private ignored storage. It does not implement record transformation or financial reconciliation. Read [implementation status](../project/implementation-status.md) before running any migration.
 
 # Database discovery and migration plan
 

@@ -61,7 +61,7 @@ php artisan route:list --path=api
 php artisan schedule:list
 ```
 
-No application test suite has been added, as requested. Local workflow checks are documented in [implementation status](docs/implementation-status.md). SQLite checks do not establish MariaDB concurrency behavior.
+No application test suite has been added, as requested. Local workflow checks are documented in [implementation status](docs/project/implementation-status.md). SQLite checks do not establish MariaDB concurrency behavior.
 
 The scheduler closes expired transfers, expires presence and drains the database queue with bounded workers. Run `php artisan schedule:run` every minute in the deployment environment; `DB_QUEUE_RETRY_AFTER=300` must exceed the job timeout. Do not run the old and new FCM workers against the same notifications during cutover.
 
@@ -71,7 +71,7 @@ The scheduler closes expired transfers, expires presence and drains the database
 - `frontend/src/features`: marketplace, accounts, orders/documents, parcels, transfers, messaging, rides and admin screens.
 - `backend/app/Services`: pricing, parcel state, transfers, finance, rides and FCM delivery.
 - `backend/database/migrations`: normalized replacement schema; does not alter the legacy database.
-- `docs`: architecture, feature inventory, migration, hosting and release plans.
+- [Documentation index](docs/README.md): grouped project, architecture, features, migration and deployment documents.
 - `.github/workflows/ci.yml`: build, lint, types, syntax, formatting and schema boot checks. It does not deploy. Place this project at the repository root to activate it.
 
-See [current implementation status and remaining work](docs/implementation-status.md) before treating this as a production replacement. Production records have not been imported; Google/FCM live integration, Android device compatibility, migration reconciliation and production release verification remain outstanding.
+See [current implementation status and remaining work](docs/project/implementation-status.md) before treating this as a production replacement. Production records have not been imported; Google/FCM live integration, Android device compatibility, migration reconciliation and production release verification remain outstanding.

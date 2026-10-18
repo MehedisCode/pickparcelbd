@@ -4,7 +4,9 @@ The owner confirmed that staging URLs have not been selected; work remains local
 
 The replacement is running locally in `PickparcelBD_new`. It uses Next.js 16, React 19 and TypeScript with a Laravel 13 API. The development database is separate SQLite storage containing fictional preview accounts. Production targets MariaDB; the legacy database and old website have not been changed.
 
-This is a working implementation for review, not a declaration of complete legacy parity or production readiness. The static action-by-action cross-reference is in [the legacy action map](legacy-action-map.md). Application test cases were explicitly deferred by the owner. No test suite or fixture-writing administrative test endpoints were added.
+This is a working implementation for review, not a declaration of complete legacy parity or production readiness. The static action-by-action cross-reference is in [the legacy action map](../migration/legacy-action-map.md). Application test cases were explicitly deferred by the owner. No test suite or fixture-writing administrative test endpoints were added.
+
+The subsequent [old vs new feature comparison](../features/old-vs-new-feature-comparison.md) records nine confirmed gaps, including pickup OTP QR, specialist member reports/exports, followers, seller catalogue pagination and message templates. It separates missing implementation from configuration, migration and device-verification work.
 
 ## Implemented application
 
@@ -54,7 +56,7 @@ These were development smoke checks, not an automated application test suite. Th
 ## Remaining work before replacing production
 
 1. **Production data transformation and reconciliation.** Read-only metadata discovery found 61 legacy tables. Replacement schema migrations are implemented, but a production-record importer is not. The `pickparcel:legacy-schema` command captures metadata only. Preserve old public/product/parcel IDs, convert legacy state/OTP/history, map private uploads, establish opening wallet ledger entries, reconcile all collection/commission/settlement totals and rehearse repeatable import from a protected snapshot before cutover.
-2. **Action-level parity review.** The inventory covers the legacy feature families. [The static action map](legacy-action-map.md) now records 55 main, 35 admin and 6 ride actions. Specialist report definitions and step-specific readiness findings are not yet verified one-for-one. The replacement provides constrained, audited operations rather than copying fixture/test or broad SQL-repair handlers. Compare the remaining operational reports and recovery cases against the owner's real workflow before declaring full parity.
+2. **Action-level parity review.** The inventory covers the legacy feature families. [The static action map](../migration/legacy-action-map.md) now records 55 main, 35 admin and 6 ride actions. Specialist report definitions and step-specific readiness findings are not yet verified one-for-one. The replacement provides constrained, audited operations rather than copying fixture/test or broad SQL-repair handlers. Compare the remaining operational reports and recovery cases against the owner's real workflow before declaring full parity.
 3. **Google and Firebase integration.** Configure the new environment's Google OAuth callback and Firebase service-account path privately. The private legacy worker was inspected read-only; no live pushes were sent and no production credentials were copied into the new repository. Verify OAuth, token refresh, notification receipt/tap and failure handling on staging devices. Network acknowledgement ambiguity can still cause a push to be repeated after a process crash; clients should use notification_id for display deduplication.
 4. **Android/WebView and browser hardware.** Android source was not supplied. Verify the existing APK's cookies, re-login, redirects/deep links, GPS, camera, uploads, downloads and printing. Legacy PHP sessions are not imported. External media and reverse-geocoding provider behavior also need staging verification.
 5. **MariaDB/concurrency and host capacity.** Run migrations and concurrent assignment/transfer/settlement checks against staging MariaDB. SQLite ignores or differs from MariaDB row-lock behavior. Verify poll/query load, queue runtime and cPanel's 1 GB memory limit before release. No persistent worker/Redis or external SSH deployment transport was verified.
@@ -66,7 +68,7 @@ Public tracking no longer exposes names, phones or exact addresses. Private docu
 
 Checkout uses current server prices and exposes the fee before confirmation. Cash memos use configured delivery rates. A driver can complete an accepted ride. Handler snapshots preserve earned commission eligibility when account roles or addresses later change. Return accountability is separate from money actually collected.
 
-GPS capture is explicit, and address/district changes remain visible to the user. Optional reverse geocoding is disabled until configured; choosing it discloses that coordinates go to the provider. See [data sources](data-sources.md), the [Nominatim API](https://nominatim.org/release-docs/latest/api/Reverse/) and [provider policy](https://operations.osmfoundation.org/policies/nominatim/).
+GPS capture is explicit, and address/district changes remain visible to the user. Optional reverse geocoding is disabled until configured; choosing it discloses that coordinates go to the provider. See [data sources](../architecture/data-sources.md), the [Nominatim API](https://nominatim.org/release-docs/latest/api/Reverse/) and [provider policy](https://operations.osmfoundation.org/policies/nominatim/).
 
 ## Dependency and verification limits
 
