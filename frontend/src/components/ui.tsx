@@ -63,16 +63,20 @@ export function Empty({
   title,
   description,
   action,
+  icon,
+  className = "",
 }: {
   title?: string;
   description?: string;
   action?: React.ReactNode;
+  icon?: React.ReactNode;
+  className?: string;
 }) {
   const { t } = useI18n();
   return (
-    <div className="empty-state">
+    <div className={`empty-state ${className}`.trim()}>
       <div className="empty-icon">
-        <Inbox size={28} />
+        {icon || <Inbox size={28} />}
       </div>
       <h3>{title || t("common.emptyTitle")}</h3>
       <p>{description || t("common.emptyDescription")}</p>

@@ -69,3 +69,13 @@ Confirm that the hosting backup service includes the new database, its retention
 Keep queue processing bounded for the host's limits, monitor failed jobs and database size, and validate financial workflows/concurrency on staging before any production cutover. Existing production cron and runtime settings remain unchanged.
 
 Reference: [cPanel Manage My Databases](https://docs.cpanel.net/cpanel/databases/manage-my-databases/).
+
+## Local use of the staging database — 19 October 2026
+
+Status: blocked by external database connectivity; the local Laravel `.env` was not switched.
+
+Read-only cPanel inspection found this computer’s public IPv4 already in Remote Database Access (no wildcard or new access rule was added). The currently hosted backend targets `kinboame_pp_staging`. Its MariaDB server reports hostname `aberi.us.svlogins.com`, port 3306, `have_ssl=YES`, and `require_secure_transport=OFF`. The `ssl_ca` and `ssl_cert` settings were empty, so these variables do not provide a CA chain or establish verified TLS for PHP PDO.
+
+External TCP probes to both the server IP and its reported hostname timed out before receiving a database handshake. This is a network reachability failure, not a password rejection. The hosting provider must confirm the external database endpoint, permit the developer’s exact current IP through its firewall, and provide certificate/CA details for verified TLS before local credentials/configuration are provisioned.
+
+Once reachable: create a separate local-development account restricted to staging CRUD, configure its credentials privately, preserve local APP_KEY/URLs/Google callbacks, clear cached configuration, and verify database identity and encrypted transport without printing secrets or copying records. Local uploads remain separate. Do not run seeders or destructive schema commands against shared staging. No production settings, grants or database rows were changed by this investigation.

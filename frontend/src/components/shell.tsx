@@ -36,6 +36,7 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { useCart } from "@/features/marketplace/cart";
 import { useI18n, useSession, useToast } from "./providers";
 import { Button, ErrorState, Loading } from "./ui";
 
@@ -91,15 +92,37 @@ export function PublicHeader({
     placeholder: string;
     label: string;
     clearLabel: string;
-    cartCount: number;
+    cartCount?: number;
   };
 } = {}) {
   const { session } = useSession();
   const { t, locale, setLocale } = useI18n();
+  const router = useRouter();
+  const cart = useCart();
   const [open, setOpen] = useState(false);
+  const [localQuery, setLocalQuery] = useState("");
 
-  if (marketplaceSearch) {
-    return (
+  const searchValue = marketplaceSearch ? marketplaceSearch.value : localQuery;
+  const handleSearchChange = (val: string) => {
+    if (marketplaceSearch) {
+      marketplaceSearch.onChange(val);
+    } else {
+      setLocalQuery(val);
+    }
+  };
+  const handleSearchSubmit = () => {
+    if (marketplaceSearch) {
+      marketplaceSearch.onSubmit();
+    } else {
+      router.push(`/?search=${encodeURIComponent(localQuery)}#discover`);
+    }
+  };
+  const cartCount =
+    marketplaceSearch?.cartCount ??
+    cart.items.reduce((sum, item) => sum + item.quantity, 0);
+
+  return (
+    <>
       <header className="marketplace-header">
         <div className="marketplace-header-inner">
           <Brand />
@@ -108,27 +131,31 @@ export function PublicHeader({
             className="marketplace-header-search"
             onSubmit={(event) => {
               event.preventDefault();
-              marketplaceSearch.onSubmit();
+              handleSearchSubmit();
             }}
           >
             <label className="sr-only" htmlFor="marketplace-header-search">
-              {marketplaceSearch.label}
+              {marketplaceSearch?.label || t("marketplace.home.search")}
             </label>
             <Search size={18} aria-hidden="true" />
             <input
               id="marketplace-header-search"
               type="search"
-              value={marketplaceSearch.value}
-              onChange={(event) =>
-                marketplaceSearch.onChange(event.target.value)
+              value={searchValue}
+              onChange={(event) => handleSearchChange(event.target.value)}
+              placeholder={
+                marketplaceSearch?.placeholder ||
+                t("marketplace.home.searchProducts")
               }
-              placeholder={marketplaceSearch.placeholder}
             />
-            {marketplaceSearch.value && (
+            {searchValue && (
               <button
                 type="button"
-                onClick={() => marketplaceSearch.onChange("")}
-                aria-label={marketplaceSearch.clearLabel}
+                onClick={() => handleSearchChange("")}
+                aria-label={
+                  marketplaceSearch?.clearLabel ||
+                  t("marketplace.home.clearSearch")
+                }
               >
                 <X size={16} />
               </button>
@@ -171,9 +198,7 @@ export function PublicHeader({
               aria-label={t("nav.shoppingBagAria")}
             >
               <ShoppingCart size={20} />
-              {marketplaceSearch.cartCount > 0 && (
-                <span>{marketplaceSearch.cartCount}</span>
-              )}
+              {cartCount > 0 && <span>{cartCount}</span>}
             </Link>
             <Link
               className="marketplace-post-action"
@@ -182,60 +207,72 @@ export function PublicHeader({
               <Plus size={18} />
               {t("marketplace.home.postProduct")}
             </Link>
+            <span className="marketplace-header-divider" aria-hidden="true" />
+            <Link
+              className="marketplace-get-started-btn"
+              href={session?.user ? "/dashboard" : "/login"}
+            >
+              {session?.user ? t("nav.myWorkspace") : t("nav.getStarted")}
+              <ChevronRight size={14} />
+            </Link>
+            <Button
+              tone="ghost"
+              className="marketplace-mobile-menu-btn"
+              aria-label={t("nav.toggleNavAria")}
+              onClick={() => setOpen(!open)}
+            >
+              {open ? <X size={20} /> : <Menu size={20} />}
+            </Button>
           </div>
         </div>
-      </header>
-    );
-  }
 
-  return (
-    <>
-      <div className="announcement">
-        <span>
-          <MapPin size={13} /> {t("nav.announcementText")}
-        </span>
-        <Link href="/help">
-          {t("nav.announcementHelp")} <ChevronRight size={13} />
-        </Link>
-      </div>
-      <header className="public-header">
-        <Brand />
-        <nav className={open ? "open" : ""}>
-          <Link href="/products">{t("nav.marketplace")}</Link>
-          <Link href="/tracking">{t("nav.tracking")}</Link>
-          <Link
-            href={session?.user ? "/ride-share" : "/login?return=/ride-share"}
-          >
-            {t("nav.rideShare")}
-          </Link>
-          <Link href="/help">{t("nav.help")}</Link>
-          <Link href="/deployment-check">{t("nav.deploymentCheck")}</Link>
-        </nav>
-        <div className="header-actions">
-          <LanguageSwitcher />
-          <Link
-            href="/cart"
-            className="icon-button"
-            aria-label={t("nav.shoppingBagAria")}
-          >
-            <ShoppingBag size={20} />
-          </Link>
-          <Link
-            className="button primary"
-            href={session?.user ? "/dashboard" : "/login"}
-          >
-            {session?.user ? t("nav.myWorkspace") : t("nav.getStarted")}
-            <ChevronRight size={15} />
-          </Link>
-          <Button
-            tone="ghost"
-            className="mobile-menu"
-            aria-label={t("nav.toggleNavAria")}
-            onClick={() => setOpen(!open)}
-          >
-            <Menu size={21} />
-          </Button>
-        </div>
+        {open && (
+          <div className="marketplace-mobile-drawer">
+            <nav className="marketplace-mobile-nav">
+              <Link href="/" onClick={() => setOpen(false)}>
+                {t("nav.marketplace")}
+              </Link>
+              <Link href="/tracking" onClick={() => setOpen(false)}>
+                {t("nav.tracking")}
+              </Link>
+              <Link
+                href={
+                  session?.user ? "/ride-share" : "/login?return=/ride-share"
+                }
+                onClick={() => setOpen(false)}
+              >
+                {t("nav.rideShare")}
+              </Link>
+              <Link href="/help" onClick={() => setOpen(false)}>
+                {t("nav.help")}
+              </Link>
+              <div className="marketplace-mobile-nav-divider" />
+              <Link
+                href="/dashboard/parcels/new"
+                className="marketplace-mobile-action"
+                onClick={() => setOpen(false)}
+              >
+                <Truck size={18} />
+                {t("marketplace.home.bookParcel")}
+              </Link>
+              <Link
+                href="/dashboard/products/new"
+                className="marketplace-mobile-action primary"
+                onClick={() => setOpen(false)}
+              >
+                <Plus size={18} />
+                {t("marketplace.home.postProduct")}
+              </Link>
+              <Link
+                href={session?.user ? "/dashboard" : "/login"}
+                className="marketplace-mobile-action workspace"
+                onClick={() => setOpen(false)}
+              >
+                {session?.user ? t("nav.myWorkspace") : t("nav.getStarted")}
+              </Link>
+            </nav>
+          </div>
+        )}
       </header>
     </>
   );
@@ -283,7 +320,7 @@ export function PublicFooter() {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { session, error, reload } = useSession();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const path = usePathname();
   const router = useRouter();
   const toast = useToast();
@@ -393,15 +430,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <PublicHeader />
         <main className="login-required">
           <span className="empty-icon">
-            <ShieldCheck size={30} />
+            <ShieldCheck size={32} />
           </span>
-          <h1>Your workspace is waiting.</h1>
-          <p>Sign in to manage your parcels, orders, and deliveries.</p>
+          <h1>
+            {locale === "bn"
+              ? "আপনার ওয়ার্কস্পেস প্রস্তুত রয়েছে।"
+              : "Your workspace is waiting."}
+          </h1>
+          <p>
+            {locale === "bn"
+              ? "পার্সেল, অর্ডার এবং ডেলিভারি পরিচালনা করতে সাইন ইন করুন।"
+              : "Sign in to manage your parcels, orders, and deliveries."}
+          </p>
           <Link
             className="button primary"
             href={`/login?return=${encodeURIComponent(path)}`}
           >
-            Sign in to continue <ChevronRight size={16} />
+            {locale === "bn" ? "প্রবেশ করতে সাইন ইন করুন" : "Sign in to continue"}{" "}
+            <ChevronRight size={16} />
           </Link>
         </main>
         <PublicFooter />

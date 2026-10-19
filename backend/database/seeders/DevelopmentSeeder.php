@@ -12,7 +12,7 @@ class DevelopmentSeeder extends Seeder
 {
     public function run(): void
     {
-        abort_unless(app()->environment('local'), 403, 'Synthetic preview records are local only.');
+        abort_unless(app()->environment('local', 'staging'), 403, 'Synthetic preview records are for local and staging only.');
         DB::transaction(function () {
             $users = [];
             foreach ([['seller', 'Nokshi Studio', 'customer'], ['buyer', 'Farhana Rahman', 'customer'], ['rider', 'Rafiul Islam', 'rider'], ['agent', 'Sadia Akter', 'district_agent'], ['admin', 'District Administrator', 'super_admin']] as $i => [$key,$name,$role]) {

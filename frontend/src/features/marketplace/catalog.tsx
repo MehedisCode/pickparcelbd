@@ -33,8 +33,11 @@ import {
   MapPin,
   Package,
   PackagePlus,
+  PackageSearch,
   Plus,
+  RotateCcw,
   Search,
+  SearchX,
   ShieldCheck,
   Shirt,
   ShoppingBag,
@@ -258,6 +261,7 @@ export function CatalogScreen({
   seller?: string;
 }) {
   const { t, locale } = useI18n();
+  const { session } = useSession();
   const cart = useCart();
   const categories = getCategories(t);
   const [category, setCategory] = useState("all");
@@ -712,19 +716,95 @@ export function CatalogScreen({
               />
             </>
           ) : (
-            <Empty
-              title={t("marketplace.home.emptyTitle")}
-              description={t("marketplace.home.emptyDescription")}
-              action={
-                <Link
-                  href="/dashboard/products/new"
-                  className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-brand-orange px-5 text-xs font-bold text-white shadow-sm hover:bg-brand-orange-dark"
-                >
-                  <PackagePlus className="h-4 w-4" />
-                  {t("marketplace.home.postProduct")}
-                </Link>
-              }
-            />
+            <div className="marketplace-empty-card">
+              {/* Subtle background ambient glow */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -top-20 -left-20 h-56 w-56 rounded-full bg-brand-orange/5 blur-3xl"
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -bottom-20 -right-20 h-56 w-56 rounded-full bg-brand-green/5 blur-3xl"
+              />
+
+              <div className="relative z-10 mx-auto max-w-md">
+                {/* Styled icon badge */}
+                <div className="empty-badge">
+                  {search || category !== "all" ? (
+                    <SearchX className="h-9 w-9 stroke-[1.75]" />
+                  ) : (
+                    <PackageSearch className="h-9 w-9 stroke-[1.75]" />
+                  )}
+                </div>
+
+                {/* Title */}
+                <h3>{t("marketplace.home.emptyTitle")}</h3>
+
+                {/* Description */}
+                <p className="empty-desc">
+                  {t("marketplace.home.emptyDescription")}
+                </p>
+
+                {/* Action buttons */}
+                <div className="empty-actions">
+                  {Boolean(search || category !== "all") && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearch("");
+                        setCategory("all");
+                        setPage(1);
+                      }}
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-brand-line bg-white px-5 text-sm font-semibold text-brand-navy shadow-sm transition hover:bg-brand-bg active:scale-95"
+                    >
+                      <RotateCcw className="h-4 w-4 text-brand-muted" />
+                      <span>{t("marketplace.home.clearAll")}</span>
+                    </button>
+                  )}
+
+                  <Link
+                    href={
+                      session?.user
+                        ? "/dashboard/products/new"
+                        : "/login?return=/dashboard/products/new"
+                    }
+                    className="button primary inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-brand-orange px-6 text-sm font-bold !text-white shadow-md shadow-brand-orange/20 transition hover:bg-brand-orange-dark active:scale-95"
+                    style={{ color: "#ffffff" }}
+                  >
+                    <PackagePlus className="h-4 w-4" style={{ color: "#ffffff" }} />
+                    <span style={{ color: "#ffffff" }}>{t("marketplace.home.postProduct")}</span>
+                  </Link>
+                </div>
+
+                {/* Helpful quick suggestions when filtering */}
+                {Boolean(search || category !== "all") && (
+                  <div className="empty-suggestions">
+                    <p>
+                      {locale === "bn" ? "জনপ্রিয় ক্যাটাগরিগুলো দেখুন:" : "Or explore categories:"}
+                    </p>
+                    <div className="empty-suggestions-list">
+                      {categories
+                        .filter((c) => c.id !== "all")
+                        .slice(0, 4)
+                        .map((cat) => (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => {
+                              setCategory(cat.id);
+                              setSearch("");
+                              setPage(1);
+                            }}
+                            className="empty-cat-chip"
+                          >
+                            {cat.label}
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
         </section>
 
