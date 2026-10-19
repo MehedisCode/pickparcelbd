@@ -1,5 +1,5 @@
 "use client";
-import { useAction, useSession } from "@/components/providers";
+import { useAction, useI18n, useSession } from "@/components/providers";
 import {
   BackLink,
   Badge,
@@ -49,6 +49,7 @@ type Order = {
   cash_memo_id: number | null;
 };
 export function OrdersScreen() {
+  const { t, locale } = useI18n();
   const [side, setSide] = useState("purchases");
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -58,9 +59,21 @@ export function OrdersScreen() {
   return (
     <>
       <PageHeading
-        eyebrow="YOUR BUSINESS, TOGETHER"
-        title="Every order has a story."
-        description="Keep track of purchases, sales, and the next steps."
+        eyebrow={
+          locale === "bn"
+            ? "ব্যবসা ও কেনাকাটার পূর্ণ বিবরণ"
+            : "YOUR BUSINESS, TOGETHER"
+        }
+        title={
+          locale === "bn"
+            ? "প্রতিটি অর্ডারের স্পষ্ট হিসাব"
+            : "Every order has a story."
+        }
+        description={
+          locale === "bn"
+            ? "ক্রয়, বিক্রয় এবং ডেলিভারির প্রতিটি পদক্ষেপের ট্র্যাক রাখুন।"
+            : "Keep track of purchases, sales, and the next steps."
+        }
       />
       <Tabs
         active={side}
@@ -69,15 +82,25 @@ export function OrdersScreen() {
           setPage(1);
         }}
         items={[
-          { id: "purchases", label: "My purchases" },
-          { id: "sales", label: "My sales" },
+          {
+            id: "purchases",
+            label: locale === "bn" ? "আমার ক্রয়সমূহ" : "My purchases",
+          },
+          {
+            id: "sales",
+            label: locale === "bn" ? "আমার বিক্রয়সমূহ" : "My sales",
+          },
         ]}
       />
       <div className="filter-row">
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="Search an order number…"
+          placeholder={
+            locale === "bn"
+              ? "অর্ডার নম্বর দিয়ে খুঁজুন…"
+              : "Search an order number…"
+          }
         />
       </div>
       {loading ? (
@@ -90,11 +113,19 @@ export function OrdersScreen() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Order</th>
-                  <th>{side === "purchases" ? "Seller" : "Buyer"}</th>
-                  <th>Status</th>
-                  <th>Total</th>
-                  <th>Payment</th>
+                  <th>{locale === "bn" ? "অর্ডার" : "Order"}</th>
+                  <th>
+                    {side === "purchases"
+                      ? locale === "bn"
+                        ? "বিক্রেতা"
+                        : "Seller"
+                      : locale === "bn"
+                        ? "ক্রেতা"
+                        : "Buyer"}
+                  </th>
+                  <th>{t.status}</th>
+                  <th>{locale === "bn" ? "সর্বমোট" : "Total"}</th>
+                  <th>{locale === "bn" ? "পেমেন্ট মাধ্যম" : "Payment"}</th>
                   <th />
                 </tr>
               </thead>
@@ -112,13 +143,22 @@ export function OrdersScreen() {
                       <Badge value={o.status} />
                     </td>
                     <td>{money(o.total)}</td>
-                    <td>{o.cod_enabled ? "Cash on delivery" : "Prepaid"}</td>
+                    <td>
+                      {o.cod_enabled
+                        ? locale === "bn"
+                          ? "ক্যাশ অন ডেলিভারি (COD)"
+                          : "Cash on delivery"
+                        : locale === "bn"
+                          ? "প্রিপেইড"
+                          : "Prepaid"}
+                    </td>
                     <td>
                       <Link
                         className="text-link"
                         href={`/dashboard/orders/${o.id}`}
                       >
-                        Details <ArrowRight size={13} />
+                        {locale === "bn" ? "বিস্তারিত" : "Details"}{" "}
+                        <ArrowRight size={13} />
                       </Link>
                     </td>
                   </tr>
@@ -137,13 +177,21 @@ export function OrdersScreen() {
           <Empty
             title={
               side === "sales"
-                ? "Your next customer is out there."
-                : "A little discovery is waiting."
+                ? locale === "bn"
+                  ? "এখনো কোনো বিক্রয় অর্ডার নেই"
+                  : "Your next customer is out there."
+                : locale === "bn"
+                  ? "এখনো কোনো ক্রয় অর্ডার নেই"
+                  : "A little discovery is waiting."
             }
             description={
               side === "sales"
-                ? "Publish products and share your shop to start receiving orders."
-                : "Explore the marketplace to place your first order."
+                ? locale === "bn"
+                  ? "মার্কেটপ্লেসে নতুন পণ্য যোগ করুন এবং আপনার দোকান শেয়ার করে অর্ডার পাওয়া শুরু করুন।"
+                  : "Publish products and share your shop to start receiving orders."
+                : locale === "bn"
+                  ? "মার্কেটপ্লেস ব্রাউজ করে আপনার প্রথম অর্ডারটি সম্পন্ন করুন।"
+                  : "Explore the marketplace to place your first order."
             }
             action={
               <Link
@@ -152,7 +200,13 @@ export function OrdersScreen() {
                   side === "sales" ? "/dashboard/products/new" : "/products"
                 }
               >
-                {side === "sales" ? "List a product" : "Explore marketplace"}
+                {side === "sales"
+                  ? locale === "bn"
+                    ? "নতুন পণ্য যোগ করুন"
+                    : "List a product"
+                  : locale === "bn"
+                    ? "মার্কেটপ্লেস দেখুন"
+                    : "Explore marketplace"}
                 <ArrowRight size={15} />
               </Link>
             }

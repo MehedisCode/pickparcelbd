@@ -29,14 +29,32 @@ import {
   Users,
   Wallet,
   X,
+  Languages,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { useSession, useToast } from "./providers";
+import { useI18n, useSession, useToast } from "./providers";
 import { Button, ErrorState, Loading } from "./ui";
 
+export function LanguageSwitcher({ className = "" }: { className?: string }) {
+  const { locale, setLocale } = useI18n();
+  return (
+    <button
+      type="button"
+      className={`lang-toggle ${className}`}
+      onClick={() => setLocale(locale === "bn" ? "en" : "bn")}
+      aria-label={locale === "bn" ? "Switch to English" : "বাংলা ভাষায় দেখুন"}
+      title={locale === "bn" ? "Switch to English" : "বাংলা ভাষায় দেখুন"}
+    >
+      <Languages size={15} />
+      <span>{locale === "bn" ? "English" : "বাংলা"}</span>
+    </button>
+  );
+}
+
 export function Brand({ compact = false }: { compact?: boolean }) {
+  const { t } = useI18n();
   return (
     <Link href="/" className="brand">
       <span className="brand-mark">
@@ -44,7 +62,7 @@ export function Brand({ compact = false }: { compact?: boolean }) {
       </span>
       <span>
         PickParcel<span className="brand-bd">BD</span>
-        <small>YOUR BUSINESS, DELIVERED.</small>
+        <small>{t.brandTagline}</small>
       </span>
     </Link>
   );
@@ -63,45 +81,47 @@ export function Avatar({ name, size = "" }: { name: string; size?: string }) {
 }
 export function PublicHeader() {
   const { session } = useSession();
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   return (
     <>
       <div className="announcement">
         <span>
-          <MapPin size={13} /> Built for Bangladesh. Connected by possibility.
+          <MapPin size={13} /> {t.announcementText}
         </span>
         <Link href="/help">
-          Need a hand? We’re here <ChevronRight size={13} />
+          {t.announcementHelp} <ChevronRight size={13} />
         </Link>
       </div>
       <header className="public-header">
         <Brand />
         <nav className={open ? "open" : ""}>
-          <Link href="/products">Marketplace</Link>
-          <Link href="/tracking">Track a parcel</Link>
+          <Link href="/products">{t.navMarketplace}</Link>
+          <Link href="/tracking">{t.navTracking}</Link>
           <Link
             href={session?.user ? "/ride-share" : "/login?return=/ride-share"}
           >
-            Ride share
+            {t.navRideShare}
           </Link>
-          <Link href="/help">Help & support</Link>
-          <Link href="/deployment-check">Deployment check</Link>
+          <Link href="/help">{t.navHelp}</Link>
+          <Link href="/deployment-check">{t.navDeploymentCheck}</Link>
         </nav>
         <div className="header-actions">
-          <Link href="/cart" className="icon-button" aria-label="Shopping bag">
+          <LanguageSwitcher />
+          <Link href="/cart" className="icon-button" aria-label={t.shoppingBagAria}>
             <ShoppingBag size={20} />
           </Link>
           <Link
             className="button primary"
             href={session?.user ? "/dashboard" : "/login"}
           >
-            {session?.user ? "My workspace" : "Get started"}
+            {session?.user ? t.btnMyWorkspace : t.btnGetStarted}
             <ChevronRight size={15} />
           </Link>
           <Button
             tone="ghost"
             className="mobile-menu"
-            aria-label="Toggle navigation"
+            aria-label={t.toggleNavAria}
             onClick={() => setOpen(!open)}
           >
             <Menu size={21} />
@@ -112,73 +132,23 @@ export function PublicHeader() {
   );
 }
 export function PublicFooter() {
+  const { t } = useI18n();
   return (
     <footer className="public-footer">
       <Brand compact />
-      <p>Small businesses. Big possibilities.</p>
+      <p>{t.footerTagline}</p>
       <div>
-        <Link href="/terms">Terms & conditions</Link>
-        <Link href="/help">Contact us</Link>
-        <span>© {new Date().getFullYear()} PickParcelBD</span>
+        <Link href="/terms">{t.footerTerms}</Link>
+        <Link href="/help">{t.footerContact}</Link>
+        <span>© {new Date().getFullYear()} PickParcelBD · {t.footerRights}</span>
       </div>
     </footer>
   );
 }
 
-const customerLinks = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/parcels", label: "My parcels", icon: Package },
-  { href: "/dashboard/orders", label: "Orders", icon: ClipboardList },
-  { href: "/dashboard/products", label: "My products", icon: Store },
-  { href: "/dashboard/cash-memos", label: "Cash memos", icon: FileText },
-  { href: "/dashboard/messages", label: "Messages", icon: MessageCircle },
-  { href: "/dashboard/wallet", label: "My wallet", icon: Wallet },
-];
-const operationsLinks = [
-  { href: "/operations", label: "Operations overview", icon: Truck },
-  {
-    href: "/operations/requests",
-    label: "Available pickups",
-    icon: ClipboardList,
-  },
-  {
-    href: "/operations/assignments",
-    label: "My pickup batches",
-    icon: Package,
-  },
-  { href: "/operations/custody", label: "My custody", icon: Package },
-  {
-    href: "/operations/transfers",
-    label: "Transfers & history",
-    icon: ArrowRightLeft,
-  },
-  {
-    href: "/operations/transfers/receive",
-    label: "Receive a handover",
-    icon: ScanLine,
-  },
-];
-const adminLinks = [
-  { href: "/admin", label: "District overview", icon: LayoutDashboard },
-  { href: "/admin/users", label: "People & roles", icon: Users },
-  { href: "/admin/riders-agents", label: "Riders & agents", icon: Bike },
-  { href: "/admin/parcels", label: "Parcel control", icon: Package },
-  { href: "/admin/finance", label: "Finance & settlements", icon: Wallet },
-  {
-    href: "/admin/audits",
-    label: "Audits & reconciliation",
-    icon: ShieldCheck,
-  },
-  {
-    href: "/admin/recovery",
-    label: "Recovery & snapshots",
-    icon: ArrowDownLeft,
-  },
-  { href: "/admin/reports", label: "Activity & reports", icon: FileText },
-];
-
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { session, error, reload } = useSession();
+  const { t } = useI18n();
   const path = usePathname();
   const router = useRouter();
   const toast = useToast();
@@ -187,6 +157,58 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const user = session?.user;
   const admin = path.startsWith("/admin");
   const operations = path.startsWith("/operations");
+
+  const customerLinks = [
+    { href: "/dashboard", label: t.navOverview, icon: LayoutDashboard },
+    { href: "/dashboard/parcels", label: t.navMyParcels, icon: Package },
+    { href: "/dashboard/orders", label: t.navOrders, icon: ClipboardList },
+    { href: "/dashboard/products", label: t.navMyProducts, icon: Store },
+    { href: "/dashboard/cash-memos", label: t.navCashMemos, icon: FileText },
+    { href: "/dashboard/messages", label: t.navMessages, icon: MessageCircle },
+    { href: "/dashboard/wallet", label: t.navWallet, icon: Wallet },
+  ];
+  const operationsLinks = [
+    { href: "/operations", label: t.navOpsOverview, icon: Truck },
+    {
+      href: "/operations/requests",
+      label: t.navOpsRequests,
+      icon: ClipboardList,
+    },
+    {
+      href: "/operations/assignments",
+      label: t.navOpsAssignments,
+      icon: Package,
+    },
+    { href: "/operations/custody", label: t.navOpsCustody, icon: Package },
+    {
+      href: "/operations/transfers",
+      label: t.navOpsTransfers,
+      icon: ArrowRightLeft,
+    },
+    {
+      href: "/operations/transfers/receive",
+      label: t.navOpsReceive,
+      icon: ScanLine,
+    },
+  ];
+  const adminLinks = [
+    { href: "/admin", label: t.navAdminOverview, icon: LayoutDashboard },
+    { href: "/admin/users", label: t.navAdminUsers, icon: Users },
+    { href: "/admin/riders-agents", label: t.navAdminRidersAgents, icon: Bike },
+    { href: "/admin/parcels", label: t.navAdminParcels, icon: Package },
+    { href: "/admin/finance", label: t.navAdminFinance, icon: Wallet },
+    {
+      href: "/admin/audits",
+      label: t.navAdminAudits,
+      icon: ShieldCheck,
+    },
+    {
+      href: "/admin/recovery",
+      label: t.navAdminRecovery,
+      icon: ArrowDownLeft,
+    },
+    { href: "/admin/reports", label: t.navAdminReports, icon: FileText },
+  ];
   if (error)
     return (
       <main className="public-container">
@@ -259,21 +281,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div>
             <strong>
               {admin
-                ? "District control"
+                ? t.wsDistrictControl
                 : operations
-                  ? "Delivery network"
-                  : "My business"}
+                  ? t.wsDeliveryNetwork
+                  : t.wsMyBusiness}
             </strong>
-            <span>{user.district || "PickParcelBD workspace"}</span>
+            <span>{user.district || t.brandName}</span>
           </div>
           <ChevronDown size={14} />
         </div>
         <p className="nav-caption">
           {admin
-            ? "ADMINISTRATION"
+            ? t.wsAdministration
             : operations
-              ? "DELIVERY OPERATIONS"
-              : "WORKSPACE"}
+              ? t.wsDeliveryOperations
+              : t.wsWorkspace}
         </p>
         <nav className="sidebar-nav">
           {links.map((i) => (
@@ -289,58 +311,58 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
         </nav>
-        <p className="nav-caption">EXPLORE MORE</p>
+        <p className="nav-caption">{t.wsExploreMore}</p>
         <nav className="sidebar-nav">
           <Link href="/products">
             <ShoppingBag size={19} />
-            Marketplace
+            {t.navMarketplace}
             <ChevronRight size={14} />
           </Link>
           <Link href="/ride-share">
             <Bike size={19} />
-            Ride share
+            {t.navRideShare}
           </Link>
           {(admin || operations) && (
             <Link href="/dashboard">
               <Store size={19} />
-              My business
+              {t.wsMyBusiness}
             </Link>
           )}
           {!operations && memberRoles.includes(user.role) && (
             <Link href="/operations">
               <Truck size={19} />
-              Delivery operations
+              {t.wsDeliveryOperations}
             </Link>
           )}
           {!admin && user.role === "super_admin" && (
             <Link href="/admin">
               <ShieldCheck size={19} />
-              District control
+              {t.wsDistrictControl}
             </Link>
           )}
           <Link href="/dashboard/following">
             <Heart size={19} />
-            Following
+            {t.navFollowing}
           </Link>
           <Link href="/dashboard/news">
             <FileText size={19} />
-            My news
+            {t.navNews}
           </Link>
           <Link href="/dashboard/buyer-blocks">
             <ShieldCheck size={19} />
-            Buyer preferences
+            {t.navBuyerBlocks}
           </Link>
           <Link href="/dashboard/settings">
             <Settings size={19} />
-            Settings
+            {t.navSettings}
           </Link>
         </nav>
         <div className="sidebar-help">
           <Headphones size={24} />
-          <strong>A little help goes a long way.</strong>
-          <p>We’re here for you and your business.</p>
+          <strong>{t.wsHelpTitle}</strong>
+          <p>{t.wsHelpSubtitle}</p>
           <Link href="/help">
-            Let’s talk <ChevronRight size={14} />
+            {t.wsHelpTalk} <ChevronRight size={14} />
           </Link>
         </div>
         <div className="sidebar-account">
@@ -351,7 +373,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           <button
             className="icon-button"
-            aria-label="Sign out"
+            aria-label={t.wsSignOut}
+            title={t.wsSignOut}
             onClick={async () => {
               try {
                 await api.post("/auth/logout");
@@ -382,15 +405,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </button>
             <span>
               {admin
-                ? "District control"
+                ? t.wsDistrictControl
                 : operations
-                  ? "Delivery operations"
-                  : "Workspace"}
+                  ? t.wsDeliveryOperations
+                  : t.wsWorkspace}
             </span>
             <ChevronRight size={13} />
             <strong>
               {path.split("/").filter(Boolean).at(-1)?.replaceAll("-", " ") ||
-                "Overview"}
+                t.navOverview}
             </strong>
           </div>
           <div className="topbar-right">
@@ -405,13 +428,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             >
               <Search size={17} />
               <input
-                placeholder="Find a parcel…"
-                aria-label="Find a parcel"
+                placeholder={t.wsSearchPlaceholder}
+                aria-label={t.wsSearchPlaceholder}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
               <kbd>↵</kbd>
             </form>
+            <LanguageSwitcher />
             <Link
               href="/dashboard/notifications"
               className="notification-icon icon-button"
@@ -424,7 +448,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
         <main className="workspace-content">{children}</main>
         <footer className="workspace-footer">
-          <span>Made for the way Bangladesh does business.</span>
+          <span>{t.wsFooterNote}</span>
           <span>
             <span className="system-dot" /> PickParcelBD · {user.district}
           </span>

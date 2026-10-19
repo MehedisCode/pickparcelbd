@@ -1,6 +1,13 @@
 "use client";
 
 import { api, refreshData } from "@/lib/api";
+import {
+  dictionaries,
+  formatTaka,
+  LanguageContext,
+  Locale,
+  translateStatus,
+} from "@/lib/i18n";
 import type { Session } from "@/lib/types";
 import {
   createContext,
@@ -19,6 +26,7 @@ const ToastContext = createContext<
   (message: string, tone?: "success" | "error") => void
 >(() => {});
 export function Providers({ children }: { children: React.ReactNode }) {
+  const [locale, setLocaleState] = useState<Locale>("bn");
   const [session, setSession] = useState<Session>();
   const [error, setError] = useState<string>();
   const [toast, setToast] = useState<{
@@ -79,26 +87,53 @@ export function Providers({ children }: { children: React.ReactNode }) {
     },
     [],
   );
+  useEffect(() => {
+    const saved = localStorage.getItem("pickparcel_locale");
+    if (saved === "bn" || saved === "en") {
+      setLocaleState(saved);
+      document.documentElement.lang = saved;
+    } else {
+      document.documentElement.lang = "bn";
+    }
+  }, []);
+
+  const setLocale = useCallback((newLocale: Locale) => {
+    setLocaleState(newLocale);
+    localStorage.setItem("pickparcel_locale", newLocale);
+    document.documentElement.lang = newLocale;
+  }, []);
+
+  const t = dictionaries[locale] || dictionaries.bn;
+  const formatMoney = useCallback((val: unknown) => formatTaka(val), []);
+  const formatStatus = useCallback(
+    (status: string) => translateStatus(status, locale),
+    [locale],
+  );
+
   return (
-    <SessionContext.Provider value={{ session, error, reload }}>
-      <ToastContext.Provider value={notify}>
-        {children}
-        {toast && (
-          <div
-            className={`toast ${toast.tone}`}
-            role={toast.tone === "error" ? "alert" : "status"}
-          >
-            {toast.message}
-            <button
-              aria-label="Dismiss notification"
-              onClick={() => setToast(undefined)}
+    <LanguageContext.Provider
+      value={{ locale, t, setLocale, formatMoney, formatStatus }}
+    >
+      <SessionContext.Provider value={{ session, error, reload }}>
+        <ToastContext.Provider value={notify}>
+          {children}
+          {toast && (
+            <div
+              className={`toast ${toast.tone}`}
+              role={toast.tone === "error" ? "alert" : "status"}
             >
-              ×
-            </button>
-          </div>
-        )}
-      </ToastContext.Provider>
-    </SessionContext.Provider>
+              {toast.message}
+              <button
+                aria-label="Dismiss notification"
+                onClick={() => setToast(undefined)}
+              >
+                ×
+              </button>
+            </div>
+          )}
+        </ToastContext.Provider>
+      </SessionContext.Provider>
+    </LanguageContext.Provider>
   );
 }
 export function useSession() {
@@ -132,3 +167,4 @@ export function useAction() {
   };
   return { run, busy };
 }
+export { useI18n } from "@/lib/i18n";

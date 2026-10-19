@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
-import { useAction } from "./providers";
+import { useAction, useI18n } from "./providers";
 
 export function Button({
   children,
@@ -52,37 +52,40 @@ export function PageHeading({
   );
 }
 export function Badge({ value }: { value: unknown }) {
+  const { formatStatus } = useI18n();
   return (
     <span className={`badge ${String(value)}`}>
-      {String(value).replaceAll("_", " ")}
+      {formatStatus(String(value))}
     </span>
   );
 }
 export function Empty({
-  title = "Nothing here yet",
-  description = "Your activity will appear here.",
+  title,
+  description,
   action,
 }: {
   title?: string;
   description?: string;
   action?: React.ReactNode;
 }) {
+  const { t } = useI18n();
   return (
     <div className="empty-state">
       <div className="empty-icon">
         <Inbox size={28} />
       </div>
-      <h3>{title}</h3>
-      <p>{description}</p>
+      <h3>{title || t.emptyTitle}</h3>
+      <p>{description || t.emptyDescription}</p>
       {action}
     </div>
   );
 }
-export function Loading() {
+export function Loading({ message }: { message?: string }) {
+  const { t } = useI18n();
   return (
     <div className="loading-state" role="status">
       <LoaderCircle className="spin" size={24} />
-      <span>Loading your workspace…</span>
+      <span>{message || t.loadingWorkspace}</span>
     </div>
   );
 }
@@ -93,14 +96,15 @@ export function ErrorState({
   message: string;
   retry?: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className="error-state" role="alert">
       <TriangleAlert size={22} />
-      <h3>We couldn’t load this</h3>
+      <h3>{t.errorTitle}</h3>
       <p>{message}</p>
       {retry && (
         <Button tone="secondary" onClick={retry}>
-          Try again
+          {t.errorRetry}
         </Button>
       )}
     </div>
@@ -138,6 +142,7 @@ export function Pagination({
   last: number;
   onChange: (n: number) => void;
 }) {
+  const { locale } = useI18n();
   if (last <= 1) return null;
   return (
     <div className="pagination">
@@ -146,17 +151,19 @@ export function Pagination({
         disabled={page <= 1}
         onClick={() => onChange(page - 1)}
       >
-        <ArrowLeft size={15} /> Previous
+        <ArrowLeft size={15} /> {locale === "bn" ? "পূর্ববর্তী" : "Previous"}
       </Button>
       <span>
-        Page {page} of {last}
+        {locale === "bn"
+          ? `পৃষ্ঠা ${page} এর ${last}`
+          : `Page ${page} of ${last}`}
       </span>
       <Button
         tone="secondary"
         disabled={page >= last}
         onClick={() => onChange(page + 1)}
       >
-        Next <ArrowRight size={15} />
+        {locale === "bn" ? "পরবর্তী" : "Next"} <ArrowRight size={15} />
       </Button>
     </div>
   );
@@ -164,23 +171,25 @@ export function Pagination({
 export function SearchInput({
   value,
   onChange,
-  placeholder = "Search…",
+  placeholder,
 }: {
   value: string;
   onChange: (s: string) => void;
   placeholder?: string;
 }) {
+  const { t } = useI18n();
+  const ph = placeholder || t.searchPlaceholder;
   return (
     <div className="search-input">
       <Search size={17} />
       <input
-        aria-label={placeholder}
-        placeholder={placeholder}
+        aria-label={ph}
+        placeholder={ph}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
       {value && (
-        <button onClick={() => onChange("")} aria-label="Clear search">
+        <button onClick={() => onChange("")} aria-label={t.remove}>
           <X size={14} />
         </button>
       )}
@@ -408,15 +417,16 @@ export function Tabs({
 }
 export function BackLink({
   href,
-  label: caption = "Back",
+  label: caption,
 }: {
   href: string;
   label?: string;
 }) {
+  const { t } = useI18n();
   return (
     <Link href={href} className="back-link">
       <ArrowLeft size={16} />
-      {caption}
+      {caption || t.back}
     </Link>
   );
 }

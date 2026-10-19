@@ -320,6 +320,26 @@ select {
   gap: 16px;
   align-items: center;
 }
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+.lang-toggle:hover {
+  background: var(--orange-soft);
+  border-color: var(--orange);
+  color: var(--orange-dark);
+}
 .public-container {
   max-width: 1230px;
   padding: 42px 35px 70px;

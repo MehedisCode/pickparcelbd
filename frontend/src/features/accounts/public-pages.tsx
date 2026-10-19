@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/providers";
 import { PublicFooter, PublicHeader } from "@/components/shell";
 import { Badge, Button, ErrorState, Loading, Panel } from "@/components/ui";
 import { useResource } from "@/hooks/use-resource";
@@ -24,6 +25,7 @@ type Tracking = {
   events: { type: string; created_at: string }[];
 };
 export function TrackingScreen({ initialCode = "" }: { initialCode?: string }) {
+  const { t, locale } = useI18n();
   const [code, setCode] = useState(initialCode);
   const [data, setData] = useState<Tracking>();
   const [busy, setBusy] = useState(false);
@@ -38,12 +40,12 @@ export function TrackingScreen({ initialCode = "" }: { initialCode?: string }) {
         })
         .catch((e) => {
           if (active)
-            setError(e instanceof Error ? e.message : "Parcel not found.");
+            setError(e instanceof Error ? e.message : t.trackingNotFound);
         });
     return () => {
       active = false;
     };
-  }, [initialCode]);
+  }, [initialCode, t.trackingNotFound]);
   return (
     <>
       <PublicHeader />
@@ -52,9 +54,9 @@ export function TrackingScreen({ initialCode = "" }: { initialCode?: string }) {
         style={{ maxWidth: 850, minHeight: "65vh" }}
       >
         <div className="section-intro">
-          <span className="eyebrow">EVERY STEP, A LITTLE CLOSER.</span>
-          <h1>Where’s your parcel?</h1>
-          <p>Enter your RFD tracking code to follow its journey.</p>
+          <span className="eyebrow">{t.trackingEyebrow}</span>
+          <h1>{t.trackingTitle}</h1>
+          <p>{t.trackingSubtitle}</p>
         </div>
         <Panel>
           <form
@@ -72,7 +74,7 @@ export function TrackingScreen({ initialCode = "" }: { initialCode?: string }) {
                 setError(
                   e instanceof Error
                     ? e.message
-                    : "Unable to find this parcel.",
+                    : t.trackingNotFound,
                 );
               } finally {
                 setBusy(false);
@@ -80,18 +82,18 @@ export function TrackingScreen({ initialCode = "" }: { initialCode?: string }) {
             }}
           >
             <label className="field" style={{ flex: 1 }}>
-              <span>Tracking code</span>
+              <span>{t.trackingInputLabel}</span>
               <input
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 required
-                placeholder="RFD123456"
+                placeholder={t.trackingInputPlaceholder}
                 maxLength={9}
               />
             </label>
             <Button disabled={busy} type="submit" style={{ alignSelf: "end" }}>
               <Search size={16} />
-              Track parcel
+              {t.trackingButton}
             </Button>
           </form>
           {busy && <Loading />}
@@ -107,7 +109,7 @@ export function TrackingScreen({ initialCode = "" }: { initialCode?: string }) {
                 <div className="route-line">
                   <span>{data.parcel.pickup_district}</span>
                   <span>→</span>
-                  <span>{data.parcel.delivery_district || "Destination"}</span>
+                  <span>{data.parcel.delivery_district || t.trackingDestination}</span>
                 </div>
                 <div className="timeline">
                   {data.events.map((e, i) => (
@@ -126,10 +128,7 @@ export function TrackingScreen({ initialCode = "" }: { initialCode?: string }) {
             </Panel>
             <div className="info-notice" style={{ marginTop: 20 }}>
               <ShieldCheck size={20} />
-              <p>
-                Contact information and verification codes are available only to
-                authorized delivery participants.
-              </p>
+              <p>{t.trackingPrivacyNotice}</p>
             </div>
           </div>
         )}
@@ -142,6 +141,7 @@ export function HelpScreen() {
   const { data } = useResource<{
     support: { email: string | null; phone: string | null };
   }>("/config");
+  const { t, locale } = useI18n();
   return (
     <>
       <PublicHeader />
@@ -150,25 +150,22 @@ export function HelpScreen() {
         style={{ maxWidth: 900, minHeight: "65vh" }}
       >
         <div className="section-intro">
-          <span className="eyebrow">A LITTLE HELP GOES A LONG WAY.</span>
-          <h1>We’re here for your next step.</h1>
-          <p>Find the right place to get your business moving again.</p>
+          <span className="eyebrow">{t.helpEyebrow}</span>
+          <h1>{t.helpTitle}</h1>
+          <p>{t.helpSubtitle}</p>
         </div>
         <div className="detail-grid">
-          <Panel title="Orders & deliveries">
+          <Panel title={t.helpOrdersPanelTitle}>
             <div className="panel-body">
               <Headphones size={28} color="var(--green)" />
-              <h3>A conversation can help.</h3>
-              <p>
-                For an order question, open the order and message the seller.
-                For a delivery, open the parcel to contact its assigned member.
-              </p>
+              <h3>{t.helpOrdersHeading}</h3>
+              <p>{t.helpOrdersText}</p>
               <Link className="button primary" href="/dashboard/orders">
-                Open my orders
+                {t.helpOrdersBtn}
               </Link>
             </div>
           </Panel>
-          <Panel title="Contact PickParcelBD">
+          <Panel title={t.helpContactPanelTitle}>
             <div className="panel-body">
               {data?.support.phone && (
                 <p>
@@ -186,42 +183,31 @@ export function HelpScreen() {
               )}
               {!data?.support.phone && !data?.support.email && (
                 <p>
-                  Direct support contact details will appear here when
-                  configured by PickParcelBD.
+                  {locale === "bn"
+                    ? "পিকপার্সেল বিডি সাপোর্ট কনফিগার করা হলে সরাসরি যোগাযোগের তথ্য এখানে প্রদর্শিত হবে।"
+                    : "Direct support contact details will appear here when configured by PickParcelBD."}
                 </p>
               )}
-              <p>প্রতিদিন সকাল ৯টা থেকে রাত ৯টা</p>
+              <p>{t.helpWorkingHours}</p>
               <Link className="text-link" href="/tracking">
-                Track a parcel →
+                {t.navTracking} →
               </Link>
             </div>
           </Panel>
         </div>
-        <Panel title="Useful answers">
+        <Panel title={t.helpFaqTitle}>
           <div className="panel-body">
             <details>
-              <summary>How do I book a parcel?</summary>
-              <p>
-                Sign in, complete your profile, then choose “Book a parcel” in
-                your workspace. Review the recipient details, delivery fee, and
-                any COD amount.
-              </p>
+              <summary>{t.helpFaq1Q}</summary>
+              <p>{t.helpFaq1A}</p>
             </details>
             <details>
-              <summary>When do I share a verification code?</summary>
-              <p>
-                Share the pickup code with the assigned member when handing over
-                your parcel. The recipient shares the delivery code when
-                receiving it.
-              </p>
+              <summary>{t.helpFaq2Q}</summary>
+              <p>{t.helpFaq2A}</p>
             </details>
             <details>
-              <summary>How are wallet credits confirmed?</summary>
-              <p>
-                COD credits follow delivery and confirmation that the company
-                received the collection. Your wallet records each confirmed
-                credit.
-              </p>
+              <summary>{t.helpFaq3Q}</summary>
+              <p>{t.helpFaq3A}</p>
             </details>
           </div>
         </Panel>

@@ -1,5 +1,5 @@
 "use client";
-import { useAction, useSession } from "@/components/providers";
+import { useAction, useI18n, useSession } from "@/components/providers";
 import { PublicFooter, PublicHeader } from "@/components/shell";
 import { Button, ErrorState, Loading } from "@/components/ui";
 import { useResource } from "@/hooks/use-resource";
@@ -25,6 +25,7 @@ const loginErrors: Record<string, string> = {
 
 export function LoginScreen() {
   const { session, reload } = useSession();
+  const { t, locale } = useI18n();
   const {
     data,
     error,
@@ -46,41 +47,51 @@ export function LoginScreen() {
       <PublicHeader />
       <main className="login-page">
         <section className="login-story">
-          <span className="eyebrow">YOUR NEXT CHAPTER STARTS HERE</span>
+          <span className="eyebrow">{t.loginStoryEyebrow}</span>
           <h1>
-            A small business.
-            <br />A big dream.
-            <br />
-            <em>
-              A little help
-              <br />
-              along the way.
-            </em>
+            {locale === "bn" ? (
+              <>
+                ক্ষুদ্র ব্যবসা।
+                <br />
+                বড় স্বপ্ন।
+                <br />
+                <em>
+                  প্রতিটি পদক্ষেপে
+                  <br />
+                  আমাদের সহযোগিতা।
+                </em>
+              </>
+            ) : (
+              <>
+                A small business.
+                <br />A big dream.
+                <br />
+                <em>
+                  A little help
+                  <br />
+                  along the way.
+                </em>
+              </>
+            )}
           </h1>
-          <p>
-            Your marketplace, delivery network, and business workspace. All
-            connected.
-          </p>
+          <p>{t.loginStorySubtitle}</p>
           <div className="login-benefit">
             <Package size={20} />
-            <span>Book and track every parcel</span>
+            <span>{t.loginBenefitParcel}</span>
           </div>
           <div className="login-benefit">
             <Truck size={20} />
-            <span>Reach your next customer</span>
+            <span>{t.loginBenefitCustomer}</span>
           </div>
           <div className="login-benefit">
             <ShieldCheck size={20} />
-            <span>Keep your business in good hands</span>
+            <span>{t.loginBenefitTrust}</span>
           </div>
         </section>
         <section className="login-form-wrap">
-          <span className="eyebrow">WELCOME TO PICKPARCELBD</span>
-          <h1>Let’s get you moving.</h1>
-          <p>
-            New here? Continue with Google to create your account. Already
-            registered? Use the same Google account to sign in.
-          </p>
+          <span className="eyebrow">{t.loginFormEyebrow}</span>
+          <h1>{t.loginFormHeading}</h1>
+          <p>{t.loginFormSubtitle}</p>
           {loginError && (
             <div className="info-notice" role="alert">
               <ShieldCheck size={20} />
@@ -89,7 +100,7 @@ export function LoginScreen() {
           )}
           {session?.user ? (
             <Link className="button primary full-width" href={continueTo}>
-              Continue as {session.user.name.split(" ")[0]}{" "}
+              {t.loginContinueAs} {session.user.name.split(" ")[0]}{" "}
               <CheckCircle2 size={17} />
             </Link>
           ) : loading ? (
@@ -101,38 +112,51 @@ export function LoginScreen() {
               className="google-button"
               href={`/auth/google${requestedReturn ? `?return=${encodeURIComponent(requestedReturn)}` : ""}`}
             >
-              <span className="google-g">G</span>Continue with Google
+              <span className="google-g">G</span>{t.loginContinueGoogle}
             </a>
           ) : (
             <div className="info-notice">
               <ShieldCheck size={20} />
               <p>
-                Google sign-in is temporarily unavailable. Please try again
-                later.
+                {locale === "bn"
+                  ? "গুগল সাইন-ইন সাময়িকভাবে অনুপলব্ধ। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।"
+                  : "Google sign-in is temporarily unavailable. Please try again later."}
               </p>
             </div>
           )}
           <p style={{ fontSize: 10 }}>
-            By continuing, you agree to our{" "}
+            {t.loginTermsNotice}{" "}
             <Link className="text-link" href="/terms">
-              terms & conditions
+              {t.footerTerms}
             </Link>
-            . Your account keeps your business connected.
           </p>
           {session?.preview_available && (
             <div className="preview-logins">
-              <strong>Local development preview</strong>
-              <p>
-                These are fictional accounts in an isolated local database.
-                Preview sign-in is disabled in production.
-              </p>
+              <strong>{t.loginPreviewTitle}</strong>
+              <p>{t.loginPreviewSubtitle}</p>
               <div className="button-row">
                 {[
-                  { role: "seller", caption: "Seller" },
-                  { role: "buyer", caption: "Buyer" },
-                  { role: "rider", caption: "Rider" },
-                  { role: "agent", caption: "Agent" },
-                  { role: "admin", caption: "District admin" },
+                  {
+                    role: "seller",
+                    caption: locale === "bn" ? "উদ্যোক্তা (Seller)" : "Seller",
+                  },
+                  {
+                    role: "buyer",
+                    caption: locale === "bn" ? "ক্রেতা (Buyer)" : "Buyer",
+                  },
+                  {
+                    role: "rider",
+                    caption: locale === "bn" ? "রাইডার (Rider)" : "Rider",
+                  },
+                  {
+                    role: "agent",
+                    caption: locale === "bn" ? "এজেন্ট (Agent)" : "Agent",
+                  },
+                  {
+                    role: "admin",
+                    caption:
+                      locale === "bn" ? "জেলা অ্যাডমিন" : "District admin",
+                  },
                 ].map((p) => (
                   <Button
                     tone="secondary"
@@ -144,7 +168,7 @@ export function LoginScreen() {
                           email: `${p.role}@preview.example`,
                         });
                         await reload();
-                      }, "Preview account signed in.");
+                      }, locale === "bn" ? "প্রিভিউ অ্যাকাউন্টে প্রবেশ সম্পন্ন।" : "Preview account signed in.");
                       if (ok)
                         router.push(
                           p.role === "admin"
