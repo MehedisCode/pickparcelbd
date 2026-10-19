@@ -25,9 +25,10 @@ tar --extract --gzip --file "$archive" --directory "$release" --no-same-owner --
 chmod -R u=rwX,go=rX "$release/backend" "$release/frontend"
 ln -s "$shared/backend.env" "$release/backend/.env"
 ln -s "$shared/backend-storage" "$release/backend/storage"
-mkdir -p "$release/backend/bootstrap/cache"
+mkdir -p "$release/backend/bootstrap/cache" "$release/backend/resources/views"
 chmod 750 "$release/backend/bootstrap/cache"
 cd "$release/backend"
+trap 'printf "Deployment preparation failed at line %s. See private log: %s\n" "$LINENO" "$shared/deployment/$release_id-prepare.log" >&2' ERR
 # An archive carries no live credentials or cached config. Package discovery runs here.
 "$php" artisan package:discover --no-interaction > "$shared/deployment/$release_id-prepare.log" 2>&1
 pending=$("$php" "$shared/deployment/pending-migrations.php" "$release/backend")
