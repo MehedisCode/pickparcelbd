@@ -85,6 +85,7 @@ export function PublicHeader() {
             Ride share
           </Link>
           <Link href="/help">Help & support</Link>
+          <Link href="/deployment-check">Deployment check</Link>
         </nav>
         <div className="header-actions">
           <Link href="/cart" className="icon-button" aria-label="Shopping bag">
