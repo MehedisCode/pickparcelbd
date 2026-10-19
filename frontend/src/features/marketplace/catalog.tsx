@@ -33,8 +33,11 @@ import {
   MapPin,
   Package,
   PackagePlus,
+  PackageSearch,
   Plus,
+  RotateCcw,
   Search,
+  SearchX,
   ShieldCheck,
   Shirt,
   ShoppingBag,
@@ -712,19 +715,93 @@ export function CatalogScreen({
               />
             </>
           ) : (
-            <Empty
-              title={t("marketplace.home.emptyTitle")}
-              description={t("marketplace.home.emptyDescription")}
-              action={
-                <Link
-                  href="/dashboard/products/new"
-                  className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-brand-orange px-5 text-xs font-bold text-white shadow-sm hover:bg-brand-orange-dark"
-                >
-                  <PackagePlus className="h-4 w-4" />
-                  {t("marketplace.home.postProduct")}
-                </Link>
-              }
-            />
+            <div className="relative overflow-hidden rounded-3xl border border-brand-line/80 bg-gradient-to-b from-white via-white to-brand-bg/50 px-6 py-12 text-center shadow-[0_4px_24px_rgba(32,53,47,0.04)] sm:px-12 sm:py-16">
+              {/* Subtle background ambient glow */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -top-20 -left-20 h-56 w-56 rounded-full bg-brand-orange/5 blur-3xl"
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -bottom-20 -right-20 h-56 w-56 rounded-full bg-brand-green/5 blur-3xl"
+              />
+
+              <div className="relative z-10 mx-auto max-w-md">
+                {/* Styled icon badge */}
+                <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-brand-orange-soft text-brand-orange shadow-inner ring-8 ring-brand-orange-soft/40 transition-transform duration-300 hover:scale-105">
+                  {search || category !== "all" ? (
+                    <SearchX className="h-9 w-9 stroke-[1.75]" />
+                  ) : (
+                    <PackageSearch className="h-9 w-9 stroke-[1.75]" />
+                  )}
+                </div>
+
+                {/* Title */}
+                <h3 className="text-xl font-bold tracking-tight text-brand-navy sm:text-2xl">
+                  {t("marketplace.home.emptyTitle")}
+                </h3>
+
+                {/* Description */}
+                <p className="mt-2 text-sm leading-relaxed text-brand-muted sm:text-base">
+                  {t("marketplace.home.emptyDescription")}
+                </p>
+
+                {/* Action buttons */}
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                  {Boolean(search || category !== "all") && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearch("");
+                        setCategory("all");
+                        setPage(1);
+                      }}
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-brand-line bg-white px-5 text-sm font-semibold text-brand-navy shadow-sm transition hover:bg-brand-bg active:scale-95"
+                    >
+                      <RotateCcw className="h-4 w-4 text-brand-muted" />
+                      <span>{t("marketplace.home.clearAll")}</span>
+                    </button>
+                  )}
+
+                  <Link
+                    href="/dashboard/products/new"
+                    className="button primary inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-brand-orange px-6 text-sm font-bold !text-white shadow-md shadow-brand-orange/20 transition hover:bg-brand-orange-dark active:scale-95"
+                    style={{ color: "#ffffff" }}
+                  >
+                    <PackagePlus className="h-4 w-4" style={{ color: "#ffffff" }} />
+                    <span style={{ color: "#ffffff" }}>{t("marketplace.home.postProduct")}</span>
+                  </Link>
+                </div>
+
+                {/* Helpful quick suggestions when filtering */}
+                {Boolean(search || category !== "all") && (
+                  <div className="mt-7 border-t border-brand-line/60 pt-5">
+                    <p className="text-xs font-medium text-brand-muted">
+                      {locale === "bn" ? "জনপ্রিয় ক্যাটাগরিগুলো দেখুন:" : "Or explore categories:"}
+                    </p>
+                    <div className="mt-2.5 flex flex-wrap items-center justify-center gap-1.5">
+                      {categories
+                        .filter((c) => c.id !== "all")
+                        .slice(0, 4)
+                        .map((cat) => (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => {
+                              setCategory(cat.id);
+                              setSearch("");
+                              setPage(1);
+                            }}
+                            className="rounded-lg border border-brand-line/80 bg-white px-3 py-1 text-xs font-medium text-brand-navy transition hover:border-brand-green/40 hover:bg-brand-mint/30"
+                          >
+                            {cat.label}
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
         </section>
 
