@@ -124,7 +124,7 @@ export function LoginScreen() {
               </p>
             </div>
           )}
-          <p style={{ fontSize: 10 }}>
+          <p className="login-terms-notice">
             {t("auth.termsNotice")}{" "}
             <Link className="text-link" href="/terms">
               {t("footer.terms")}
