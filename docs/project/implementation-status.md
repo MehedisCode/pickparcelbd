@@ -1,6 +1,6 @@
 # Implementation status — 18 October 2026
 
-The owner selected cPanel hosting for both `https://staging.pickparcelbd.com` and `https://staging-api.pickparcelbd.com`. Both domains, HTTPS and the isolated release are prepared, with Node.js registered and both applications held in maintenance mode. The staging database and dedicated users are provisioned. Database password entry, authenticated connectivity checks, Google callback configuration and final activation remain pending. See [cPanel staging deployment](../deployment/cpanel-staging.md).
+The owner selected cPanel hosting for the Next.js frontend and Laravel API at `https://staging.pickparcelbd.com` and `https://staging-api.pickparcelbd.com`. The release-based staging installation was activated and a subsequent manual release verified the deployment-check message and fresh backend timestamp. The owner is moving to the simpler manual-upload layout; its current panel settings and end-to-end login still need verification. GitHub builds artifacts; automatic deployment is not configured. See [manual cPanel deployment](../deployment/cpanel-staging.md).
 
 The replacement is running locally in `PickparcelBD_new`. It uses Next.js 16, React 19 and TypeScript with a Laravel 13 API. The development database is separate SQLite storage containing fictional preview accounts. Production targets MariaDB; the legacy database and old website have not been changed.
 
