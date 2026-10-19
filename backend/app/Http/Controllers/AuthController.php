@@ -3,9 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\GoogleAccounts;
+use App\Support\AuthNavigation;
+use DomainException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\InvalidStateException;
+use Throwable;
 
 class AuthController extends Controller
 {
@@ -13,47 +19,78 @@ class AuthController extends Controller
     {
         $user = Auth::guard('web')->user();
 
-        return response()->json(['user' => $user, 'profile_complete' => $user?->profileComplete() ?? false, 'preview_available' => app()->environment('local') && config('pickparcel.preview_login')]);
+        return response()->json([
+            'user' => $user,
+            'profile_complete' => $user?->profileComplete() ?? false,
+            'preview_available' => $this->previewAllowed(),
+        ]);
     }
 
     public function redirect(Request $r)
     {
-        abort_unless(config('services.google.client_id'), 503, 'Google sign-in is not configured yet.');
-        $return = (string) $r->query('return', '/dashboard');
-        if (! str_starts_with($return, '/') || str_starts_with($return, '//') || preg_match('/[\\\\\r\n]/', $return)) {
-            $return = '/dashboard';
+        $r->session()->put('login_return', AuthNavigation::path($r->query('return'), ''));
+        if (! AuthNavigation::configured()) {
+            return $this->failure($r, 'unavailable');
         }
-        $r->session()->put('login_return', $return);
 
-        return Socialite::driver('google')->scopes(['openid', 'email', 'profile'])->redirect();
+        return Socialite::driver('google')->scopes(['openid', 'email', 'profile'])->with(['prompt' => 'select_account'])->redirect();
     }
 
-    public function callback(Request $r)
+    public function callback(Request $r, GoogleAccounts $accounts)
     {
-        $google = Socialite::driver('google')->user();
-        abort_unless(($google->user['email_verified'] ?? $google->user['verified_email'] ?? false) && $google->getEmail(), 403, 'A verified Google email is required.');
-        $u = User::where('google_id', $google->getId())->first() ?? User::where('email', $google->getEmail())->first();
-        if ($u?->google_id) {
-            abort_unless(hash_equals((string) $u->google_id, (string) $google->getId()), 403, 'This email is linked to a different Google identity.');
+        if ($r->has('error')) {
+            return $this->failure($r, $r->query('error') === 'access_denied' ? 'cancelled' : 'failed');
         }
-        if (! $u) {
-            do {
-                $public = 'PP'.random_int(1000000000, 9999999999);
-            } while (User::where('public_id', $public)->exists());
-            $u = new User;
-            $u->forceFill(['public_id' => $public, 'email' => $google->getEmail(), 'role' => 'customer', 'wallet_balance' => '0.00']);
+        if (! AuthNavigation::configured()) {
+            return $this->failure($r, 'unavailable');
         }
-        $u->forceFill(['google_id' => $google->getId(), 'name' => $google->getName() ?: $google->getNickname() ?: 'PickParcel user', 'avatar_url' => $google->getAvatar()])->save();
+        if (! is_string($r->query('code')) || ! $r->query('code') || ! is_string($r->query('state')) || ! $r->query('state')) {
+            return $this->failure($r, 'expired');
+        }
+        try {
+            $google = Socialite::driver('google')->user();
+        } catch (InvalidStateException) {
+            return $this->failure($r, 'expired');
+        } catch (Throwable $exception) {
+            // Provider exception messages may contain tokens, codes or secrets.
+            Log::warning('Google sign-in provider request failed.', ['exception_class' => $exception::class]);
+
+            return $this->failure($r, 'failed');
+        }
+        if (filter_var($google->user['email_verified'] ?? $google->user['verified_email'] ?? false, FILTER_VALIDATE_BOOLEAN) !== true || ! filter_var($google->getEmail(), FILTER_VALIDATE_EMAIL) || strlen((string) $google->getEmail()) > 320 || ! $google->getId()) {
+            return $this->failure($r, 'unverified');
+        }
+        try {
+            $u = $accounts->resolve($google);
+        } catch (DomainException) {
+            return $this->failure($r, 'account_conflict');
+        } catch (Throwable $exception) {
+            Log::warning('Google sign-in account persistence failed.', ['exception_class' => $exception::class]);
+
+            return $this->failure($r, 'failed');
+        }
         Auth::login($u, true);
         $r->session()->regenerate();
-        $return = $r->session()->pull('login_return', '/dashboard');
+        $return = AuthNavigation::path($r->session()->pull('login_return'), AuthNavigation::home($u));
 
-        return redirect(rtrim(config('pickparcel.frontend_url'), '/').($u->profileComplete() ? $return : '/complete-profile'));
+        return redirect(rtrim(config('pickparcel.frontend_url'), '/').($u->profileComplete() ? $return : '/complete-profile?'.http_build_query(['return' => $return])));
+    }
+
+    private function failure(Request $r, string $error)
+    {
+        $return = AuthNavigation::path($r->session()->pull('login_return'), '');
+        $r->session()->forget(['state', 'code_verifier']);
+        $query = ['error' => $error];
+        if ($return !== '') {
+            $query['return'] = $return;
+        }
+
+        return redirect(rtrim(config('pickparcel.frontend_url'), '/').'/login?'.http_build_query($query));
     }
 
     public function preview(Request $r)
     {
-        abort_unless(app()->environment('local') && config('pickparcel.preview_login'), 404);
+        abort_unless($this->previewAllowed(), 404);
         $data = $r->validate(['email' => 'required|email']);
         abort_unless(str_ends_with($data['email'], '@preview.example'), 403);
         $u = User::where('email', $data['email'])->firstOrFail();
@@ -61,6 +98,11 @@ class AuthController extends Controller
         $r->session()->regenerate();
 
         return response()->json(['user' => $u]);
+    }
+
+    private function previewAllowed(): bool
+    {
+        return app()->environment('local', 'staging') || (bool) config('pickparcel.preview_login');
     }
 
     public function logout(Request $r)

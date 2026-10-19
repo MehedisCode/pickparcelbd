@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\Pricing;
+use App\Support\AuthNavigation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -11,9 +12,20 @@ class PublicController extends Controller
 {
     public function __construct(private Pricing $pricing) {}
 
+    public function deploymentCheck()
+    {
+        $time = now('Asia/Dhaka');
+
+        return response()->json([
+            'release' => 'manual-upload-02',
+            'message' => 'Hello from the Laravel backend! This response was generated at '.$time->format('d M Y, h:i:s A').' (Bangladesh time).',
+            'server_time' => $time->toIso8601String(),
+        ])->header('Cache-Control', 'no-store');
+    }
+
     public function config()
     {
-        return response()->json(['geocoding_available' => (bool) config('pickparcel.geocoding_enabled'), 'rates' => $this->pricing->rates(), 'categories' => ['all', 'fashion', 'electronics', 'home', 'beauty', 'food', 'other'], 'support' => ['email' => config('pickparcel.support_email'), 'phone' => config('pickparcel.support_phone')], 'google_available' => (bool) config('services.google.client_id')]);
+        return response()->json(['geocoding_available' => (bool) config('pickparcel.geocoding_enabled'), 'rates' => $this->pricing->rates(), 'categories' => ['all', 'fashion', 'electronics', 'home', 'beauty', 'food', 'other'], 'support' => ['email' => config('pickparcel.support_email'), 'phone' => config('pickparcel.support_phone')], 'google_available' => AuthNavigation::configured()]);
     }
 
     public function products(Request $r)

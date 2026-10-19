@@ -24,19 +24,40 @@ import {
   Settings,
   ShieldCheck,
   ShoppingBag,
+  ShoppingCart,
   Store,
   Truck,
   Users,
   Wallet,
   X,
+  Languages,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { useSession, useToast } from "./providers";
+import { useCart } from "@/features/marketplace/cart";
+import { useI18n, useSession, useToast } from "./providers";
 import { Button, ErrorState, Loading } from "./ui";
 
+export function LanguageSwitcher({ className = "" }: { className?: string }) {
+  const { locale, setLocale } = useI18n();
+  return (
+    <button
+      type="button"
+      className={`lang-toggle ${className}`}
+      onClick={() => setLocale(locale === "bn" ? "en" : "bn")}
+      aria-label={locale === "bn" ? "Switch to English" : "বাংলা ভাষায় দেখুন"}
+      title={locale === "bn" ? "Switch to English" : "বাংলা ভাষায় দেখুন"}
+    >
+      <Languages size={15} />
+      <span>{locale === "bn" ? "English" : "বাংলা"}</span>
+    </button>
+  );
+}
+
 export function Brand({ compact = false }: { compact?: boolean }) {
+  const { t } = useI18n();
   return (
     <Link href="/" className="brand">
       <span className="brand-mark">
@@ -44,7 +65,7 @@ export function Brand({ compact = false }: { compact?: boolean }) {
       </span>
       <span>
         PickParcel<span className="brand-bd">BD</span>
-        <small>YOUR BUSINESS, DELIVERED.</small>
+        <small>{t("nav.brandTagline")}</small>
       </span>
     </Link>
   );
@@ -61,123 +82,245 @@ export function Avatar({ name, size = "" }: { name: string; size?: string }) {
     </span>
   );
 }
-export function PublicHeader() {
+export function PublicHeader({
+  marketplaceSearch,
+}: {
+  marketplaceSearch?: {
+    value: string;
+    onChange: (value: string) => void;
+    onSubmit: () => void;
+    placeholder: string;
+    label: string;
+    clearLabel: string;
+    cartCount?: number;
+  };
+} = {}) {
   const { session } = useSession();
+  const { t, locale, setLocale } = useI18n();
+  const router = useRouter();
+  const cart = useCart();
   const [open, setOpen] = useState(false);
+  const [localQuery, setLocalQuery] = useState("");
+
+  const searchValue = marketplaceSearch ? marketplaceSearch.value : localQuery;
+  const handleSearchChange = (val: string) => {
+    if (marketplaceSearch) {
+      marketplaceSearch.onChange(val);
+    } else {
+      setLocalQuery(val);
+    }
+  };
+  const handleSearchSubmit = () => {
+    if (marketplaceSearch) {
+      marketplaceSearch.onSubmit();
+    } else {
+      router.push(`/?search=${encodeURIComponent(localQuery)}#discover`);
+    }
+  };
+  const cartCount =
+    marketplaceSearch?.cartCount ??
+    cart.items.reduce((sum, item) => sum + item.quantity, 0);
+
   return (
     <>
-      <div className="announcement">
-        <span>
-          <MapPin size={13} /> Built for Bangladesh. Connected by possibility.
-        </span>
-        <Link href="/help">
-          Need a hand? We’re here <ChevronRight size={13} />
-        </Link>
-      </div>
-      <header className="public-header">
-        <Brand />
-        <nav className={open ? "open" : ""}>
-          <Link href="/products">Marketplace</Link>
-          <Link href="/tracking">Track a parcel</Link>
-          <Link
-            href={session?.user ? "/ride-share" : "/login?return=/ride-share"}
+      <header className="marketplace-header">
+        <div className="marketplace-header-inner">
+          <Brand />
+          <form
+            role="search"
+            className="marketplace-header-search"
+            onSubmit={(event) => {
+              event.preventDefault();
+              handleSearchSubmit();
+            }}
           >
-            Ride share
-          </Link>
-          <Link href="/help">Help & support</Link>
-        </nav>
-        <div className="header-actions">
-          <Link href="/cart" className="icon-button" aria-label="Shopping bag">
-            <ShoppingBag size={20} />
-          </Link>
-          <Link
-            className="button primary"
-            href={session?.user ? "/dashboard" : "/login"}
-          >
-            {session?.user ? "My workspace" : "Get started"}
-            <ChevronRight size={15} />
-          </Link>
-          <Button
-            tone="ghost"
-            className="mobile-menu"
-            aria-label="Toggle navigation"
-            onClick={() => setOpen(!open)}
-          >
-            <Menu size={21} />
-          </Button>
+            <label className="sr-only" htmlFor="marketplace-header-search">
+              {marketplaceSearch?.label || t("marketplace.home.search")}
+            </label>
+            <Search size={18} aria-hidden="true" />
+            <input
+              id="marketplace-header-search"
+              type="search"
+              value={searchValue}
+              onChange={(event) => handleSearchChange(event.target.value)}
+              placeholder={
+                marketplaceSearch?.placeholder ||
+                t("marketplace.home.searchProducts")
+              }
+            />
+            {searchValue && (
+              <button
+                type="button"
+                onClick={() => handleSearchChange("")}
+                aria-label={
+                  marketplaceSearch?.clearLabel ||
+                  t("marketplace.home.clearSearch")
+                }
+              >
+                <X size={16} />
+              </button>
+            )}
+          </form>
+
+          <div className="marketplace-header-actions">
+            <div
+              className="marketplace-language-switch"
+              role="group"
+              aria-label={t("nav.langSwitchAria")}
+            >
+              <button
+                type="button"
+                lang="bn"
+                aria-pressed={locale === "bn"}
+                onClick={() => setLocale("bn")}
+              >
+                বাং
+              </button>
+              <button
+                type="button"
+                lang="en"
+                aria-pressed={locale === "en"}
+                onClick={() => setLocale("en")}
+              >
+                EN
+              </button>
+            </div>
+            <Link
+              className="marketplace-parcel-action"
+              href="/dashboard/parcels/new"
+            >
+              <Truck size={18} />
+              {t("marketplace.home.bookParcel")}
+            </Link>
+            <Link
+              href="/cart"
+              className="marketplace-cart-action"
+              aria-label={t("nav.shoppingBagAria")}
+            >
+              <ShoppingCart size={20} />
+              {cartCount > 0 && <span>{cartCount}</span>}
+            </Link>
+            <Link
+              className="marketplace-post-action"
+              href="/dashboard/products/new"
+            >
+              <Plus size={18} />
+              {t("marketplace.home.postProduct")}
+            </Link>
+            <span className="marketplace-header-divider" aria-hidden="true" />
+            <Link
+              className="marketplace-get-started-btn"
+              href={session?.user ? "/dashboard" : "/login"}
+            >
+              {session?.user ? t("nav.myWorkspace") : t("nav.getStarted")}
+              <ChevronRight size={14} />
+            </Link>
+            <Button
+              tone="ghost"
+              className="marketplace-mobile-menu-btn"
+              aria-label={t("nav.toggleNavAria")}
+              onClick={() => setOpen(!open)}
+            >
+              {open ? <X size={20} /> : <Menu size={20} />}
+            </Button>
+          </div>
         </div>
+
+        {open && (
+          <div className="marketplace-mobile-drawer">
+            <nav className="marketplace-mobile-nav">
+              <Link href="/" onClick={() => setOpen(false)}>
+                {t("nav.marketplace")}
+              </Link>
+              <Link href="/tracking" onClick={() => setOpen(false)}>
+                {t("nav.tracking")}
+              </Link>
+              <Link
+                href={
+                  session?.user ? "/ride-share" : "/login?return=/ride-share"
+                }
+                onClick={() => setOpen(false)}
+              >
+                {t("nav.rideShare")}
+              </Link>
+              <Link href="/help" onClick={() => setOpen(false)}>
+                {t("nav.help")}
+              </Link>
+              <div className="marketplace-mobile-nav-divider" />
+              <Link
+                href="/dashboard/parcels/new"
+                className="marketplace-mobile-action"
+                onClick={() => setOpen(false)}
+              >
+                <Truck size={18} />
+                {t("marketplace.home.bookParcel")}
+              </Link>
+              <Link
+                href="/dashboard/products/new"
+                className="marketplace-mobile-action primary"
+                onClick={() => setOpen(false)}
+              >
+                <Plus size={18} />
+                {t("marketplace.home.postProduct")}
+              </Link>
+              <Link
+                href={session?.user ? "/dashboard" : "/login"}
+                className="marketplace-mobile-action workspace"
+                onClick={() => setOpen(false)}
+              >
+                {session?.user ? t("nav.myWorkspace") : t("nav.getStarted")}
+              </Link>
+            </nav>
+          </div>
+        )}
       </header>
     </>
   );
 }
 export function PublicFooter() {
+  const { t } = useI18n();
   return (
-    <footer className="public-footer">
-      <Brand compact />
-      <p>Small businesses. Big possibilities.</p>
-      <div>
-        <Link href="/terms">Terms & conditions</Link>
-        <Link href="/help">Contact us</Link>
-        <span>© {new Date().getFullYear()} PickParcelBD</span>
+    <footer className="public-footer public-footer-v2">
+      <div className="public-footer-grid">
+        <div className="public-footer-brand">
+          <Brand compact />
+          <p>{t("footer.tagline")}</p>
+        </div>
+        <nav aria-label={t("nav.marketplace")}>
+          <strong>{t("nav.marketplace")}</strong>
+          <Link href="/products">{t("marketplace.home.browseProducts")}</Link>
+          <Link href="/#categories">{t("marketplace.home.allCategories")}</Link>
+          <Link href="/dashboard/products/new">
+            {t("marketplace.home.postProduct")}
+          </Link>
+        </nav>
+        <nav aria-label={t("footer.contact")}>
+          <strong>{t("footer.contact")}</strong>
+          <Link href="/tracking">{t("nav.tracking")}</Link>
+          <Link href="/help">{t("nav.help")}</Link>
+          <Link href="/terms">{t("footer.terms")}</Link>
+        </nav>
+        <div className="public-footer-help">
+          <strong>{t("nav.helpTitle")}</strong>
+          <p>{t("nav.helpSubtitle")}</p>
+          <Link href="/help">
+            <Headphones size={16} /> {t("nav.helpTalk")}
+          </Link>
+        </div>
+      </div>
+      <div className="public-footer-bottom">
+        <span>
+          © {new Date().getFullYear()} PickParcelBD · {t("footer.rights")}
+        </span>
+        <span>{t("footer.note")}</span>
       </div>
     </footer>
   );
 }
 
-const customerLinks = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/parcels", label: "My parcels", icon: Package },
-  { href: "/dashboard/orders", label: "Orders", icon: ClipboardList },
-  { href: "/dashboard/products", label: "My products", icon: Store },
-  { href: "/dashboard/cash-memos", label: "Cash memos", icon: FileText },
-  { href: "/dashboard/messages", label: "Messages", icon: MessageCircle },
-  { href: "/dashboard/wallet", label: "My wallet", icon: Wallet },
-];
-const operationsLinks = [
-  { href: "/operations", label: "Operations overview", icon: Truck },
-  {
-    href: "/operations/requests",
-    label: "Available pickups",
-    icon: ClipboardList,
-  },
-  {
-    href: "/operations/assignments",
-    label: "My pickup batches",
-    icon: Package,
-  },
-  { href: "/operations/custody", label: "My custody", icon: Package },
-  {
-    href: "/operations/transfers",
-    label: "Transfers & history",
-    icon: ArrowRightLeft,
-  },
-  {
-    href: "/operations/transfers/receive",
-    label: "Receive a handover",
-    icon: ScanLine,
-  },
-];
-const adminLinks = [
-  { href: "/admin", label: "District overview", icon: LayoutDashboard },
-  { href: "/admin/users", label: "People & roles", icon: Users },
-  { href: "/admin/riders-agents", label: "Riders & agents", icon: Bike },
-  { href: "/admin/parcels", label: "Parcel control", icon: Package },
-  { href: "/admin/finance", label: "Finance & settlements", icon: Wallet },
-  {
-    href: "/admin/audits",
-    label: "Audits & reconciliation",
-    icon: ShieldCheck,
-  },
-  {
-    href: "/admin/recovery",
-    label: "Recovery & snapshots",
-    icon: ArrowDownLeft,
-  },
-  { href: "/admin/reports", label: "Activity & reports", icon: FileText },
-];
-
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { session, error, reload } = useSession();
+  const { t, locale } = useI18n();
   const path = usePathname();
   const router = useRouter();
   const toast = useToast();
@@ -186,6 +329,94 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const user = session?.user;
   const admin = path.startsWith("/admin");
   const operations = path.startsWith("/operations");
+
+  const customerLinks = [
+    {
+      href: "/dashboard",
+      label: t("nav.customer.overview"),
+      icon: LayoutDashboard,
+    },
+    {
+      href: "/dashboard/parcels",
+      label: t("nav.customer.myParcels"),
+      icon: Package,
+    },
+    {
+      href: "/dashboard/orders",
+      label: t("nav.customer.orders"),
+      icon: ClipboardList,
+    },
+    {
+      href: "/dashboard/products",
+      label: t("nav.customer.myProducts"),
+      icon: Store,
+    },
+    {
+      href: "/dashboard/cash-memos",
+      label: t("nav.customer.cashMemos"),
+      icon: FileText,
+    },
+    {
+      href: "/dashboard/messages",
+      label: t("nav.customer.messages"),
+      icon: MessageCircle,
+    },
+    {
+      href: "/dashboard/wallet",
+      label: t("nav.customer.wallet"),
+      icon: Wallet,
+    },
+  ];
+  const operationsLinks = [
+    { href: "/operations", label: t("nav.operations.overview"), icon: Truck },
+    {
+      href: "/operations/requests",
+      label: t("nav.operations.requests"),
+      icon: ClipboardList,
+    },
+    {
+      href: "/operations/assignments",
+      label: t("nav.operations.assignments"),
+      icon: Package,
+    },
+    {
+      href: "/operations/custody",
+      label: t("nav.operations.custody"),
+      icon: Package,
+    },
+    {
+      href: "/operations/transfers",
+      label: t("nav.operations.transfers"),
+      icon: ArrowRightLeft,
+    },
+    {
+      href: "/operations/transfers/receive",
+      label: t("nav.operations.receive"),
+      icon: ScanLine,
+    },
+  ];
+  const adminLinks = [
+    { href: "/admin", label: t("nav.admin.overview"), icon: LayoutDashboard },
+    { href: "/admin/users", label: t("nav.admin.users"), icon: Users },
+    {
+      href: "/admin/riders-agents",
+      label: t("nav.admin.ridersAgents"),
+      icon: Bike,
+    },
+    { href: "/admin/parcels", label: t("nav.admin.parcels"), icon: Package },
+    { href: "/admin/finance", label: t("nav.admin.finance"), icon: Wallet },
+    {
+      href: "/admin/audits",
+      label: t("nav.admin.audits"),
+      icon: ShieldCheck,
+    },
+    {
+      href: "/admin/recovery",
+      label: t("nav.admin.recovery"),
+      icon: ArrowDownLeft,
+    },
+    { href: "/admin/reports", label: t("nav.admin.reports"), icon: FileText },
+  ];
   if (error)
     return (
       <main className="public-container">
@@ -199,15 +430,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <PublicHeader />
         <main className="login-required">
           <span className="empty-icon">
-            <ShieldCheck size={30} />
+            <ShieldCheck size={32} />
           </span>
-          <h1>Your workspace is waiting.</h1>
-          <p>Sign in to manage your parcels, orders, and deliveries.</p>
+          <h1>
+            {locale === "bn"
+              ? "আপনার ওয়ার্কস্পেস প্রস্তুত রয়েছে।"
+              : "Your workspace is waiting."}
+          </h1>
+          <p>
+            {locale === "bn"
+              ? "পার্সেল, অর্ডার এবং ডেলিভারি পরিচালনা করতে সাইন ইন করুন।"
+              : "Sign in to manage your parcels, orders, and deliveries."}
+          </p>
           <Link
             className="button primary"
             href={`/login?return=${encodeURIComponent(path)}`}
           >
-            Sign in to continue <ChevronRight size={16} />
+            {locale === "bn" ? "প্রবেশ করতে সাইন ইন করুন" : "Sign in to continue"}{" "}
+            <ChevronRight size={16} />
           </Link>
         </main>
         <PublicFooter />
@@ -258,21 +498,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div>
             <strong>
               {admin
-                ? "District control"
+                ? t("nav.districtControl")
                 : operations
-                  ? "Delivery network"
-                  : "My business"}
+                  ? t("nav.deliveryNetwork")
+                  : t("nav.myBusiness")}
             </strong>
-            <span>{user.district || "PickParcelBD workspace"}</span>
+            <span>{user.district || t("nav.brandName")}</span>
           </div>
           <ChevronDown size={14} />
         </div>
         <p className="nav-caption">
           {admin
-            ? "ADMINISTRATION"
+            ? t("nav.administration")
             : operations
-              ? "DELIVERY OPERATIONS"
-              : "WORKSPACE"}
+              ? t("nav.deliveryOperations")
+              : t("nav.workspace")}
         </p>
         <nav className="sidebar-nav">
           {links.map((i) => (
@@ -288,58 +528,58 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
         </nav>
-        <p className="nav-caption">EXPLORE MORE</p>
+        <p className="nav-caption">{t("nav.exploreMore")}</p>
         <nav className="sidebar-nav">
           <Link href="/products">
             <ShoppingBag size={19} />
-            Marketplace
+            {t("nav.marketplace")}
             <ChevronRight size={14} />
           </Link>
           <Link href="/ride-share">
             <Bike size={19} />
-            Ride share
+            {t("nav.rideShare")}
           </Link>
           {(admin || operations) && (
             <Link href="/dashboard">
               <Store size={19} />
-              My business
+              {t("nav.myBusiness")}
             </Link>
           )}
           {!operations && memberRoles.includes(user.role) && (
             <Link href="/operations">
               <Truck size={19} />
-              Delivery operations
+              {t("nav.deliveryOperations")}
             </Link>
           )}
           {!admin && user.role === "super_admin" && (
             <Link href="/admin">
               <ShieldCheck size={19} />
-              District control
+              {t("nav.districtControl")}
             </Link>
           )}
           <Link href="/dashboard/following">
             <Heart size={19} />
-            Following
+            {t("nav.customer.following")}
           </Link>
           <Link href="/dashboard/news">
             <FileText size={19} />
-            My news
+            {t("nav.customer.news")}
           </Link>
           <Link href="/dashboard/buyer-blocks">
             <ShieldCheck size={19} />
-            Buyer preferences
+            {t("nav.customer.buyerBlocks")}
           </Link>
           <Link href="/dashboard/settings">
             <Settings size={19} />
-            Settings
+            {t("nav.customer.settings")}
           </Link>
         </nav>
         <div className="sidebar-help">
           <Headphones size={24} />
-          <strong>A little help goes a long way.</strong>
-          <p>We’re here for you and your business.</p>
+          <strong>{t("nav.helpTitle")}</strong>
+          <p>{t("nav.helpSubtitle")}</p>
           <Link href="/help">
-            Let’s talk <ChevronRight size={14} />
+            {t("nav.helpTalk")} <ChevronRight size={14} />
           </Link>
         </div>
         <div className="sidebar-account">
@@ -350,7 +590,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           <button
             className="icon-button"
-            aria-label="Sign out"
+            aria-label={t("nav.signOut")}
+            title={t("nav.signOut")}
             onClick={async () => {
               try {
                 await api.post("/auth/logout");
@@ -381,15 +622,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </button>
             <span>
               {admin
-                ? "District control"
+                ? t("nav.districtControl")
                 : operations
-                  ? "Delivery operations"
-                  : "Workspace"}
+                  ? t("nav.deliveryOperations")
+                  : t("nav.workspace")}
             </span>
             <ChevronRight size={13} />
             <strong>
               {path.split("/").filter(Boolean).at(-1)?.replaceAll("-", " ") ||
-                "Overview"}
+                t("nav.customer.overview")}
             </strong>
           </div>
           <div className="topbar-right">
@@ -404,13 +645,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             >
               <Search size={17} />
               <input
-                placeholder="Find a parcel…"
-                aria-label="Find a parcel"
+                placeholder={t("nav.searchPlaceholder")}
+                aria-label={t("nav.searchPlaceholder")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
               <kbd>↵</kbd>
             </form>
+            <LanguageSwitcher />
             <Link
               href="/dashboard/notifications"
               className="notification-icon icon-button"
@@ -423,7 +665,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
         <main className="workspace-content">{children}</main>
         <footer className="workspace-footer">
-          <span>Made for the way Bangladesh does business.</span>
+          <span>{t("footer.note")}</span>
           <span>
             <span className="system-dot" /> PickParcelBD · {user.district}
           </span>

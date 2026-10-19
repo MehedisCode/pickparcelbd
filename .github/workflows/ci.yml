@@ -56,4 +56,4 @@ jobs:
           php artisan migrate --force --no-interaction
           php artisan route:list --path=api
 # Test cases are intentionally deferred at the owner's request.
-# Deployment is configured only after staging and transport are confirmed.
+# Staging artifacts for manual upload are built in staging.yml.

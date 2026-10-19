@@ -20,10 +20,11 @@ import { ProfileForm } from "./profile-form";
 import { ProductCard } from "@/features/marketplace/catalog";
 import { useResource } from "@/hooks/use-resource";
 import { api, date, money } from "@/lib/api";
+import { accountHome, safeReturnPath } from "@/lib/auth-navigation";
 import type { Paged, Product, User } from "@/lib/types";
 import { ArrowRight, MessageCircle, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export function ProfileSettingsScreen({
@@ -33,6 +34,11 @@ export function ProfileSettingsScreen({
 }) {
   const { session, reload } = useSession();
   const router = useRouter();
+  const params = useSearchParams();
+  const target = safeReturnPath(
+    params.get("return"),
+    accountHome(session?.user),
+  );
   const u = session?.user;
   if (!session) return <Loading />;
   if (!u)
@@ -40,7 +46,10 @@ export function ProfileSettingsScreen({
       <Empty
         title="Sign in to continue"
         action={
-          <Link href="/login" className="button primary">
+          <Link
+            href={`/login?return=${encodeURIComponent(target)}`}
+            className="button primary"
+          >
             Sign in
           </Link>
         }
@@ -64,7 +73,7 @@ export function ProfileSettingsScreen({
             complete={complete}
             onSaved={async () => {
               await reload();
-              if (complete) router.push("/dashboard");
+              if (complete) router.replace(target);
             }}
           />
         </Panel>

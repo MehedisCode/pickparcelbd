@@ -1,5 +1,5 @@
 "use client";
-import { useAction, useSession } from "@/components/providers";
+import { useAction, useI18n, useSession } from "@/components/providers";
 import {
   BackLink,
   Badge,
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui";
 import { useResource } from "@/hooks/use-resource";
 import { api, date, label, money } from "@/lib/api";
+import { translateStatus } from "@/lib/i18n";
 import type { Paged, Parcel, User } from "@/lib/types";
 import { memberRoles } from "@/lib/types";
 import {
@@ -50,6 +51,7 @@ export function ParcelListScreen({
   mode?: "customer" | "operations" | "admin";
   view?: string;
 }) {
+  const { t, locale } = useI18n();
   const params = useSearchParams();
   const [search, setSearch] = useState(params.get("search") || "");
   const [status, setStatus] = useState("");
@@ -74,28 +76,28 @@ export function ParcelListScreen({
   }>(assign ? "/members" : null);
   const title =
     view === "custody"
-      ? "In your care"
+      ? t("nav.operations.custody")
       : view === "assigned"
-        ? "Your pickup requests"
+        ? t("nav.operations.requests")
         : mode === "admin"
-          ? "District parcel control"
+          ? t("nav.admin.parcels")
           : mode === "operations"
-            ? "Parcels on the move"
-            : "Your parcels";
+            ? t("nav.operations.overview")
+            : t("parcels.listTitle");
   return (
     <>
       <PageHeading
         eyebrow={
           mode === "operations"
-            ? "DELIVERY OPERATIONS"
-            : "EVERY JOURNEY, ACCOUNTED FOR"
+            ? t("parcels.listEyebrowOps")
+            : t("parcels.listEyebrowCustomer")
         }
         title={title}
-        description="A clear view of every parcel and its next step."
+        description={t("parcels.listDescription")}
         action={
           <Link href="/dashboard/parcels/new" className="button primary">
             <Plus size={15} />
-            Book a parcel
+            {t("parcels.bookParcel")}
           </Link>
         }
       />
@@ -106,11 +108,11 @@ export function ParcelListScreen({
           setPage(1);
         }}
         items={[
-          { id: "", label: "All parcels" },
-          { id: "pending", label: "Pending pickup" },
-          { id: "in_transit", label: "In transit" },
-          { id: "delivered", label: "Delivered" },
-          { id: "returned", label: "Returned" },
+          { id: "", label: t("parcels.tabs.all") },
+          { id: "pending", label: t("parcels.tabs.pending") },
+          { id: "in_transit", label: t("parcels.tabs.inTransit") },
+          { id: "delivered", label: t("parcels.tabs.delivered") },
+          { id: "returned", label: t("parcels.tabs.returned") },
         ]}
       />
       <div className="filter-row">
@@ -137,32 +139,32 @@ export function ParcelListScreen({
             setSearch(s);
             setPage(1);
           }}
-          placeholder="Search by parcel ID, recipient, or phone…"
+          placeholder={t("parcels.searchPlaceholder")}
         />
         <select
           value={status}
-          aria-label="Filter parcel status"
+          aria-label={t("parcels.filterStatusAria")}
           onChange={(e) => {
             setStatus(e.target.value);
             setPage(1);
           }}
         >
-          <option value="">All statuses</option>
+          <option value="">{t("parcels.allStatuses")}</option>
           {statuses.map((s) => (
             <option value={s} key={s}>
-              {label(s)}
+              {translateStatus(s, locale)}
             </option>
           ))}
         </select>
         {selected.length > 0 && (
           <>
             <Button tone="secondary" onClick={() => setAssign(true)}>
-              {selected.length} selected · Assign
+              {t("parcels.selectedAssign", { count: selected.length })}
             </Button>
             {mode !== "operations" && (
               <ConfirmAction
-                title="Cancel selected pickup assignments?"
-                description="All selected parcels must still be assigned and awaiting physical pickup."
+                title={t("parcels.cancelConfirmTitle")}
+                description={t("parcels.cancelConfirmDesc")}
                 onConfirm={async () => {
                   await api.post("/parcels/cancel-assignments", {
                     codes: selected,
@@ -170,7 +172,7 @@ export function ParcelListScreen({
                   setSelected([]);
                 }}
               >
-                Cancel selected assignments
+                {t("parcels.cancelSelected")}
               </ConfirmAction>
             )}
             {mode === "operations" && (
@@ -181,7 +183,7 @@ export function ParcelListScreen({
                   );
                 }}
               >
-                Create handover
+                {t("parcels.createHandover")}
               </Button>
             )}
           </>
@@ -211,11 +213,11 @@ export function ParcelListScreen({
                       }
                     />
                   </th>
-                  <th>Parcel & date</th>
-                  <th>Recipient</th>
-                  <th>Destination</th>
-                  <th>Status</th>
-                  <th>Charge / COD</th>
+                  <th>{t("parcels.colParcelDate")}</th>
+                  <th>{t("parcels.colRecipient")}</th>
+                  <th>{t("parcels.colDestination")}</th>
+                  <th>{t("parcels.colStatus")}</th>
+                  <th>{t("parcels.colChargeCod")}</th>
                   <th />
                 </tr>
               </thead>
@@ -284,11 +286,12 @@ export function ParcelListScreen({
       ) : (
         <Panel>
           <Empty
-            title="No parcels on this route yet."
-            description="Try another filter, or book a parcel to start a new journey."
+            title={t("parcels.noParcelsTitle")}
+            description={t("parcels.noParcelsDesc")}
             action={
               <Link href="/dashboard/parcels/new" className="button primary">
-                Book your first parcel <Plus size={15} />
+                {t("parcels.bookFirstParcel")}{" "}
+                <Plus size={15} />
               </Link>
             }
           />
@@ -326,94 +329,97 @@ export function ParcelListScreen({
 export function BookParcelScreen() {
   const { session } = useSession();
   const router = useRouter();
+  const { t, locale } = useI18n();
   const { data } = useResource<{
     rates: { base_charge: string; extra_per_100g: string };
   }>("/config");
   return (
     <>
-      <BackLink href="/dashboard/parcels" label="Back to your parcels" />
+      <BackLink
+        href="/dashboard/parcels"
+        label={t("parcels.backToList")}
+      />
       <PageHeading
-        eyebrow="A NEW JOURNEY STARTS HERE"
-        title="Let’s send something good."
-        description="Tell us where it’s going. We’ll take it from here."
+        eyebrow={t("parcels.newEyebrow")}
+        title={t("parcels.newTitle")}
+        description={t("parcels.newDescription")}
       />
       <div className="detail-grid">
-        <Panel title="Parcel & delivery details">
+        <Panel title={t("parcels.formTitle")}>
           <Form
             initial={{
               pickup_address: session?.user?.address || "",
               weight_grams: 1000,
               cod_enabled: false,
             }}
-            submit="Book parcel"
+            submit={t("parcels.submitBook")}
             fields={[
               {
                 name: "delivery_name",
-                label: "Recipient’s name",
+                label: t("parcels.recipientName"),
                 required: true,
-                placeholder: "Who’s it going to?",
+                placeholder: t("parcels.recipientNamePlaceholder"),
               },
               {
                 name: "delivery_phone",
-                label: "Recipient’s phone",
+                label: t("parcels.recipientPhone"),
                 required: true,
                 type: "tel",
                 placeholder: "01XXXXXXXXX",
               },
               {
                 name: "delivery_address",
-                label: "Full delivery address",
+                label: t("parcels.recipientAddress"),
                 required: true,
                 type: "textarea",
-                placeholder: "House, road, area, and delivery instructions",
+                placeholder: t("parcels.recipientAddressPlaceholder"),
               },
               {
                 name: "delivery_district",
-                label: "Delivery district",
-                placeholder: "District (optional)",
+                label: t("parcels.district"),
+                placeholder: t("parcels.districtPlaceholder"),
               },
               {
                 name: "delivery_upazila",
-                label: "Delivery upazila",
-                placeholder: "Upazila (optional)",
+                label: t("parcels.upazila"),
+                placeholder: t("parcels.upazilaPlaceholder"),
               },
               {
                 name: "pickup_address",
-                label: "Pickup address",
+                label: t("parcels.pickupAddress"),
                 required: true,
                 type: "textarea",
               },
               {
                 name: "weight_grams",
-                label: "Weight in grams",
+                label: t("parcels.weightGrams"),
                 type: "number",
                 required: true,
                 min: 1,
                 max: 1000000,
-                help: "1 kilogram = 1,000 grams",
+                help: t("parcels.weightHelp"),
               },
               {
                 name: "cod_enabled",
-                label: "Collect cash on delivery",
+                label: t("parcels.codEnabled"),
                 type: "checkbox",
               },
               {
                 name: "cod_amount",
-                label: "COD amount (৳)",
+                label: t("parcels.codAmount"),
                 type: "number",
                 min: 0.01,
                 step: "0.01",
-                help: "Product amount to collect, excluding delivery charge",
+                help: t("parcels.codHelp"),
               },
               {
                 name: "note",
-                label: "A note for the delivery team",
+                label: t("parcels.note"),
                 type: "textarea",
               },
               {
                 name: "terms_accepted",
-                label:
-                  "I have read and agree to the Terms & conditions linked below.",
+                label: t("parcels.termsAccepted"),
                 type: "checkbox",
                 required: true,
               },
@@ -429,38 +435,31 @@ export function BookParcelScreen() {
           />
           <div className="panel-body">
             <Link href="/terms" target="_blank" className="text-link">
-              Read Terms & conditions →
+              {t("parcels.readTerms")}
             </Link>
           </div>
         </Panel>
         <div>
-          <Panel title="Simple, transparent delivery">
+          <Panel title={t("parcels.ratePanelTitle")}>
             <div className="panel-body">
               <div className="key-value">
-                <span>Up to 1 kg</span>
+                <span>{t("parcels.rateBase")}</span>
                 <strong>{money(data?.rates.base_charge || 60)}</strong>
               </div>
               <div className="key-value">
-                <span>Each additional started 100 g</span>
+                <span>{t("parcels.rateExtra")}</span>
                 <strong>{money(data?.rates.extra_per_100g || 3)}</strong>
               </div>
               <p style={{ fontSize: 11, marginTop: 18 }}>
-                The final charge is calculated from your parcel’s weight. Your
-                pickup member may verify and update its weight.
+                {t("parcels.rateExplanation")}
               </p>
               <div className="info-notice">
                 <ShieldCheck size={18} />
-                <p>
-                  Pickup and delivery use verification codes. Only share the
-                  right code when the handover takes place.
-                </p>
+                <p>{t("parcels.otpNotice")}</p>
               </div>
               <div className="info-notice">
                 <Package size={18} />
-                <p>
-                  Pack it with care. Seal your parcel and keep the recipient’s
-                  contact details handy.
-                </p>
+                <p>{t("parcels.packingNotice")}</p>
               </div>
             </div>
           </Panel>

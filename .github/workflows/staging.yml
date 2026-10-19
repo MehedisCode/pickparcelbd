@@ -1,0 +1,59 @@
+name: Build staging artifact
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pickparcel-staging-build
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, bcmath, pdo_mysql, dom, curl, fileinfo
+          coverage: none
+          tools: composer:v2
+      - name: Build and check frontend
+        working-directory: frontend
+        env:
+          BACKEND_URL: https://staging-api.pickparcelbd.com
+          NEXT_PUBLIC_SITE_URL: https://staging.pickparcelbd.com
+        run: |
+          npm ci
+          npm run typecheck
+          npm run lint
+          npm run build
+      - name: Prepare backend runtime
+        working-directory: backend
+        run: |
+          composer validate --strict
+          composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress --no-scripts
+          find app bootstrap config database routes -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Package release
+        run: bash scripts/package-staging.sh
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: staging-${{ github.sha }}
+          path: |
+            staging-release.tar.gz
+            staging-release.sha256
+          retention-days: 7
+          if-no-files-found: error
+      - name: Manual upload instructions
+        run: |
+          echo 'Download the staging artifact from this run, extract it, and upload the frontend/runtime or backend files using the manual cPanel guide. This workflow does not deploy.' >> "$GITHUB_STEP_SUMMARY"

@@ -6,4 +6,4 @@ Use the setup commands in [the project README](../README.md). Start the local AP
 
 `php artisan route:list --path=api` lists the implemented endpoints under `/api/v1`. `php artisan schedule:list` lists bounded background work. `php artisan pickparcel:legacy-schema` reads metadata only from an explicitly configured read-only legacy connection; it does not migrate records.
 
-Fresh migrations create the replacement schema. Never run them against the old application database. Production data import and financial reconciliation are separate pending work described in [implementation status](../docs/implementation-status.md).
+Fresh migrations create the replacement schema. Never run them against the old application database. Production data import and financial reconciliation are separate pending work described in [implementation status](../docs/project/implementation-status.md).

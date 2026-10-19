@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->middleware('throttle:api')->group(function () {
     Route::get('session', [AuthController::class, 'session']);
     Route::get('config', [PublicController::class, 'config']);
+    Route::get('deployment-check', [PublicController::class, 'deploymentCheck']);
     Route::get('products', [PublicController::class, 'products']);
     Route::get('products/{id}', [PublicController::class, 'product'])->whereNumber('id');
     Route::get('profiles/{publicId}', [PublicController::class, 'profile']);

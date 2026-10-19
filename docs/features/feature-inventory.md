@@ -1,6 +1,6 @@
 # Feature inventory and parity checklist
 
-Status: the feature families below now have replacement code in the local application, except where [implementation status](implementation-status.md) identifies remaining work. This is the required parity inventory, not proof that every legacy action has been verified. Specialist recovery/reporting tools, production data import and device integrations require further comparison.
+Status: the feature families below now have replacement code in the local application, except where [implementation status](../project/implementation-status.md) identifies remaining work. This is the required parity inventory, not proof that every legacy action has been verified. Specialist recovery/reporting tools, production data import and device integrations require further comparison.
 
 Legacy file paths below are relative to `PickparcelBD_old`. References identify inspected source areas, not proof that a workflow works in production. Each family must be expanded into individual actions and acceptance cases during discovery.
 

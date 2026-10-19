@@ -2,7 +2,7 @@
 
 # Proposed project folder structure
 
-Only `docs/` exists as part of this planning task. The application directories below are future implementation targets. Standard generated framework files will also be present when the applications are scaffolded.
+This is the original application design proposal. The application has since been implemented; the opening note identifies its main current paths. The documentation subtree below reflects the current organization. Use [the documentation index](../README.md) for maintained links and [the project README](../../README.md) for setup commands.
 
 ```text
 PickparcelBD_new/
@@ -282,20 +282,30 @@ PickparcelBD_new/
 │           └── LegacyDataIntegrityTest.php
 ├── docs/
 │   ├── README.md
-│   ├── implementation-plan.md
-│   ├── feature-inventory.md
-│   ├── architecture.md
-│   ├── folder-structure.md
-│   ├── database-migration.md
-│   ├── roles-permissions.md
-│   ├── parcel-lifecycle.md
-│   ├── financial-rules.md
-│   ├── api-design.md
-│   ├── mobile-compatibility.md
-│   ├── acceptance-checklist.md
-│   ├── decisions-risks.md
-│   ├── api/openapi.yaml                 # Future contract
-│   └── deployment/
+│   ├── architecture/
+│   │   ├── api-design.md
+│   │   ├── architecture.md
+│   │   ├── data-sources.md
+│   │   ├── folder-structure.md
+│   │   └── roles-permissions.md
+│   ├── deployment/
+│   │   ├── plan.md
+│   │   └── production-runbook.md
+│   ├── features/
+│   │   ├── feature-inventory.md
+│   │   ├── financial-rules.md
+│   │   ├── old-vs-new-feature-comparison.md
+│   │   └── parcel-lifecycle.md
+│   ├── migration/
+│   │   ├── database-migration.md
+│   │   ├── legacy-action-map.md
+│   │   └── mobile-compatibility.md
+│   └── project/
+│       ├── acceptance-checklist.md
+│       ├── decisions-risks.md
+│       ├── implementation-plan.md
+│       └── implementation-status.md
+└── deployment/
 │       ├── plan.md
 │       └── production-runbook.md
 └── deployment/

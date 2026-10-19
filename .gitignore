@@ -3,6 +3,7 @@
 **/.env.*
 !**/.env.example
 !**/.env.local.example
+!**/.env.staging.example
 **/auth.json
 **/.npmrc.local
 **/*.pem
