@@ -102,11 +102,11 @@ export function refreshData() {
   window.dispatchEvent(new Event("pickparcel:refresh"));
 }
 export function money(value: unknown) {
-  return new Intl.NumberFormat("en-BD", {
-    style: "currency",
-    currency: "BDT",
+  const num = Number(value || 0);
+  return `৳ ${num.toLocaleString("en-BD", {
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  }).format(Number(value || 0));
+  })}`;
 }
 export function date(value: unknown) {
   return value

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { MapPin } from "lucide-react";
 import locations from "@/data/locations.json";
 import { Form, Button } from "@/components/ui";
-import { useAction } from "@/components/providers";
+import { useAction, useI18n } from "@/components/providers";
 import { api } from "@/lib/api";
 import { useResource } from "@/hooks/use-resource";
 import type { User } from "@/lib/types";
@@ -16,6 +16,7 @@ export function ProfileForm({
   complete: boolean;
   onSaved: () => Promise<void>;
 }) {
+  const { locale } = useI18n();
   const { data: configuration } = useResource<{ geocoding_available: boolean }>(
     "/config",
   );
@@ -54,46 +55,70 @@ export function ProfileForm({
           ...user,
           upazila: district === user.district ? user.upazila : "",
         }}
-        submit={complete ? "Complete my profile" : "Save profile"}
+        submit={
+          complete
+            ? locale === "bn"
+              ? "প্রোফাইল সম্পূর্ণ করুন"
+              : "Complete my profile"
+            : locale === "bn"
+              ? "প্রোফাইল সংরক্ষণ করুন"
+              : "Save profile"
+        }
         onValueChange={(name, value) => {
           if (name === "district") setDistrict(value);
         }}
         fields={[
-          { name: "name", label: "Your name", required: true },
+          {
+            name: "name",
+            label: locale === "bn" ? "আপনার পূর্ণ নাম" : "Your name",
+            required: true,
+          },
           {
             name: "phone",
-            label: "Private contact phone",
+            label:
+              locale === "bn"
+                ? "যোগাযোগের ফোন নম্বর (গোপনীয়)"
+                : "Private contact phone",
             type: "tel",
             required: true,
-            help: "Available to authorized delivery participants.",
+            help:
+              locale === "bn"
+                ? "ডেলিভারি সমন্বয়ের জন্য শুধুমাত্র অনুমোদিত রাইডার/এজেন্ট দেখতে পাবেন।"
+                : "Available to authorized delivery participants.",
           },
           {
             name: "address",
-            label: "Full address",
+            label: locale === "bn" ? "পূর্ণ ঠিকানা" : "Full address",
             type: "textarea",
             required: true,
           },
           {
             name: "district",
-            label: "জেলা / District",
+            label: locale === "bn" ? "জেলা" : "জেলা / District",
             required: true,
             options: districts.map((v) => ({ value: v, label: v })),
           },
           {
             name: "upazila",
-            label: "উপজেলা / Upazila",
+            label: locale === "bn" ? "উপজেলা / থানা" : "উপজেলা / Upazila",
             required: true,
             refreshKey: district,
             options: upazilas.map((v) => ({ value: v, label: v })),
           },
           {
             name: "public_phone",
-            label: "Alternative public phone",
+            label:
+              locale === "bn"
+                ? "বিকল্প পাবলিক ফোন (ঐচ্ছিক)"
+                : "Alternative public phone",
             type: "tel",
           },
           {
             name: "phone_public",
-            label: "Show my contact phone on my public profile",
+            label:
+              locale === "bn"
+                ? "আমার পাবলিক প্রোফাইলে ফোন নম্বর প্রদর্শন করুন"
+                : "Show my contact phone on my public profile",
             type: "checkbox",
           },
         ]}
@@ -109,7 +134,11 @@ export function ProfileForm({
           onClick={() =>
             void run(async () => {
               if (!navigator.geolocation)
-                throw new Error("GPS is unavailable in this browser.");
+                throw new Error(
+                  locale === "bn"
+                    ? "এই ব্রাউজারে জিপিএস সুবিধা নেই।"
+                    : "GPS is unavailable in this browser.",
+                );
               const position = await new Promise<GeolocationPosition>(
                 (resolve, reject) =>
                   navigator.geolocation.getCurrentPosition(resolve, reject, {
@@ -127,15 +156,16 @@ export function ProfileForm({
                 longitude: position.coords.longitude,
                 location_accuracy: position.coords.accuracy,
               });
-            }, "GPS location updated.")
+            }, locale === "bn" ? "জিপিএস অবস্থান আপডেট সম্পন্ন।" : "GPS location updated.")
           }
         >
           <MapPin size={16} />
-          Update my GPS location
+          {locale === "bn" ? "আমার জিপিএস অবস্থান আপডেট করুন" : "Update my GPS location"}
         </Button>
         <p className="muted" style={{ fontSize: 11 }}>
-          Your browser asks before sharing your location. Confirm your district
-          and address above; GPS does not overwrite them.
+          {locale === "bn"
+            ? "আপনার ব্রাউজার অনুমতি চাইলে 'Allow' নির্বাচন করুন। উপরে আপনার জেলা ও ঠিকানা নিশ্চিত করুন।"
+            : "Your browser asks before sharing your location. Confirm your district and address above; GPS does not overwrite them."}
         </p>
         {configuration?.geocoding_available && coordinates && (
           <>
