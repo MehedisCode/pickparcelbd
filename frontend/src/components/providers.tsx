@@ -92,8 +92,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem("pickparcel_locale");
     if (saved === "bn" || saved === "en") {
-      setLocaleState(saved);
       document.documentElement.lang = saved;
+      const frame = requestAnimationFrame(() => setLocaleState(saved));
+      return () => cancelAnimationFrame(frame);
     } else {
       document.documentElement.lang = "bn";
     }

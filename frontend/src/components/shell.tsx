@@ -24,12 +24,14 @@ import {
   Settings,
   ShieldCheck,
   ShoppingBag,
+  ShoppingCart,
   Store,
   Truck,
   Users,
   Wallet,
   X,
   Languages,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -79,10 +81,113 @@ export function Avatar({ name, size = "" }: { name: string; size?: string }) {
     </span>
   );
 }
-export function PublicHeader() {
+export function PublicHeader({
+  marketplaceSearch,
+}: {
+  marketplaceSearch?: {
+    value: string;
+    onChange: (value: string) => void;
+    onSubmit: () => void;
+    placeholder: string;
+    label: string;
+    clearLabel: string;
+    cartCount: number;
+  };
+} = {}) {
   const { session } = useSession();
-  const { t } = useI18n();
+  const { t, locale, setLocale } = useI18n();
   const [open, setOpen] = useState(false);
+
+  if (marketplaceSearch) {
+    return (
+      <header className="marketplace-header">
+        <div className="marketplace-header-inner">
+          <Brand />
+          <form
+            role="search"
+            className="marketplace-header-search"
+            onSubmit={(event) => {
+              event.preventDefault();
+              marketplaceSearch.onSubmit();
+            }}
+          >
+            <label className="sr-only" htmlFor="marketplace-header-search">
+              {marketplaceSearch.label}
+            </label>
+            <Search size={18} aria-hidden="true" />
+            <input
+              id="marketplace-header-search"
+              type="search"
+              value={marketplaceSearch.value}
+              onChange={(event) =>
+                marketplaceSearch.onChange(event.target.value)
+              }
+              placeholder={marketplaceSearch.placeholder}
+            />
+            {marketplaceSearch.value && (
+              <button
+                type="button"
+                onClick={() => marketplaceSearch.onChange("")}
+                aria-label={marketplaceSearch.clearLabel}
+              >
+                <X size={16} />
+              </button>
+            )}
+          </form>
+
+          <div className="marketplace-header-actions">
+            <div
+              className="marketplace-language-switch"
+              role="group"
+              aria-label={t("nav.langSwitchAria")}
+            >
+              <button
+                type="button"
+                lang="bn"
+                aria-pressed={locale === "bn"}
+                onClick={() => setLocale("bn")}
+              >
+                বাং
+              </button>
+              <button
+                type="button"
+                lang="en"
+                aria-pressed={locale === "en"}
+                onClick={() => setLocale("en")}
+              >
+                EN
+              </button>
+            </div>
+            <Link
+              className="marketplace-parcel-action"
+              href="/dashboard/parcels/new"
+            >
+              <Truck size={18} />
+              {t("marketplace.home.bookParcel")}
+            </Link>
+            <Link
+              href="/cart"
+              className="marketplace-cart-action"
+              aria-label={t("nav.shoppingBagAria")}
+            >
+              <ShoppingCart size={20} />
+              {marketplaceSearch.cartCount > 0 && (
+                <span>{marketplaceSearch.cartCount}</span>
+              )}
+            </Link>
+            <Link
+              className="marketplace-post-action"
+              href="/dashboard/products/new"
+            >
+              <Plus size={18} />
+              {t("marketplace.home.postProduct")}
+            </Link>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <>
       <div className="announcement">
@@ -108,7 +213,11 @@ export function PublicHeader() {
         </nav>
         <div className="header-actions">
           <LanguageSwitcher />
-          <Link href="/cart" className="icon-button" aria-label={t("nav.shoppingBagAria")}>
+          <Link
+            href="/cart"
+            className="icon-button"
+            aria-label={t("nav.shoppingBagAria")}
+          >
             <ShoppingBag size={20} />
           </Link>
           <Link
@@ -134,13 +243,39 @@ export function PublicHeader() {
 export function PublicFooter() {
   const { t } = useI18n();
   return (
-    <footer className="public-footer">
-      <Brand compact />
-      <p>{t("footer.tagline")}</p>
-      <div>
-        <Link href="/terms">{t("footer.terms")}</Link>
-        <Link href="/help">{t("footer.contact")}</Link>
-        <span>© {new Date().getFullYear()} PickParcelBD · {t("footer.rights")}</span>
+    <footer className="public-footer public-footer-v2">
+      <div className="public-footer-grid">
+        <div className="public-footer-brand">
+          <Brand compact />
+          <p>{t("footer.tagline")}</p>
+        </div>
+        <nav aria-label={t("nav.marketplace")}>
+          <strong>{t("nav.marketplace")}</strong>
+          <Link href="/products">{t("marketplace.home.browseProducts")}</Link>
+          <Link href="/#categories">{t("marketplace.home.allCategories")}</Link>
+          <Link href="/dashboard/products/new">
+            {t("marketplace.home.postProduct")}
+          </Link>
+        </nav>
+        <nav aria-label={t("footer.contact")}>
+          <strong>{t("footer.contact")}</strong>
+          <Link href="/tracking">{t("nav.tracking")}</Link>
+          <Link href="/help">{t("nav.help")}</Link>
+          <Link href="/terms">{t("footer.terms")}</Link>
+        </nav>
+        <div className="public-footer-help">
+          <strong>{t("nav.helpTitle")}</strong>
+          <p>{t("nav.helpSubtitle")}</p>
+          <Link href="/help">
+            <Headphones size={16} /> {t("nav.helpTalk")}
+          </Link>
+        </div>
+      </div>
+      <div className="public-footer-bottom">
+        <span>
+          © {new Date().getFullYear()} PickParcelBD · {t("footer.rights")}
+        </span>
+        <span>{t("footer.note")}</span>
       </div>
     </footer>
   );
@@ -159,13 +294,41 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const operations = path.startsWith("/operations");
 
   const customerLinks = [
-    { href: "/dashboard", label: t("nav.customer.overview"), icon: LayoutDashboard },
-    { href: "/dashboard/parcels", label: t("nav.customer.myParcels"), icon: Package },
-    { href: "/dashboard/orders", label: t("nav.customer.orders"), icon: ClipboardList },
-    { href: "/dashboard/products", label: t("nav.customer.myProducts"), icon: Store },
-    { href: "/dashboard/cash-memos", label: t("nav.customer.cashMemos"), icon: FileText },
-    { href: "/dashboard/messages", label: t("nav.customer.messages"), icon: MessageCircle },
-    { href: "/dashboard/wallet", label: t("nav.customer.wallet"), icon: Wallet },
+    {
+      href: "/dashboard",
+      label: t("nav.customer.overview"),
+      icon: LayoutDashboard,
+    },
+    {
+      href: "/dashboard/parcels",
+      label: t("nav.customer.myParcels"),
+      icon: Package,
+    },
+    {
+      href: "/dashboard/orders",
+      label: t("nav.customer.orders"),
+      icon: ClipboardList,
+    },
+    {
+      href: "/dashboard/products",
+      label: t("nav.customer.myProducts"),
+      icon: Store,
+    },
+    {
+      href: "/dashboard/cash-memos",
+      label: t("nav.customer.cashMemos"),
+      icon: FileText,
+    },
+    {
+      href: "/dashboard/messages",
+      label: t("nav.customer.messages"),
+      icon: MessageCircle,
+    },
+    {
+      href: "/dashboard/wallet",
+      label: t("nav.customer.wallet"),
+      icon: Wallet,
+    },
   ];
   const operationsLinks = [
     { href: "/operations", label: t("nav.operations.overview"), icon: Truck },
@@ -179,7 +342,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       label: t("nav.operations.assignments"),
       icon: Package,
     },
-    { href: "/operations/custody", label: t("nav.operations.custody"), icon: Package },
+    {
+      href: "/operations/custody",
+      label: t("nav.operations.custody"),
+      icon: Package,
+    },
     {
       href: "/operations/transfers",
       label: t("nav.operations.transfers"),
@@ -194,7 +361,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const adminLinks = [
     { href: "/admin", label: t("nav.admin.overview"), icon: LayoutDashboard },
     { href: "/admin/users", label: t("nav.admin.users"), icon: Users },
-    { href: "/admin/riders-agents", label: t("nav.admin.ridersAgents"), icon: Bike },
+    {
+      href: "/admin/riders-agents",
+      label: t("nav.admin.ridersAgents"),
+      icon: Bike,
+    },
     { href: "/admin/parcels", label: t("nav.admin.parcels"), icon: Package },
     { href: "/admin/finance", label: t("nav.admin.finance"), icon: Wallet },
     {
