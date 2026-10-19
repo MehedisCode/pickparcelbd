@@ -15,7 +15,6 @@ import {
 } from "@/components/ui";
 import { useResource } from "@/hooks/use-resource";
 import { api, money } from "@/lib/api";
-import type { Translations } from "@/lib/i18n";
 import type { Paged, Product, Row } from "@/lib/types";
 import {
   ArrowRight,
@@ -34,15 +33,15 @@ import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "./cart";
 
-function getCategories(t: Translations) {
+function getCategories(t: (key: string) => string) {
   return [
-    { id: "all", label: t.catAll },
-    { id: "fashion", label: t.catFashion },
-    { id: "home", label: t.catHome },
-    { id: "electronics", label: t.catElectronics },
-    { id: "beauty", label: t.catBeauty },
-    { id: "food", label: t.catFood },
-    { id: "other", label: t.catOther },
+    { id: "all", label: t("marketplace.categories.all") },
+    { id: "fashion", label: t("marketplace.categories.fashion") },
+    { id: "home", label: t("marketplace.categories.home") },
+    { id: "electronics", label: t("marketplace.categories.electronics") },
+    { id: "beauty", label: t("marketplace.categories.beauty") },
+    { id: "food", label: t("marketplace.categories.food") },
+    { id: "other", label: t("marketplace.categories.other") },
   ];
 }
 
@@ -56,13 +55,13 @@ export function PackageArt() {
       <div className="hero-floating one">
         <CheckCircle2 size={22} />
         <div>
-          <strong>{t.heroDeliveredTitle}</strong>{t.heroDeliveredSubtitle}
+          <strong>{t("marketplace.heroDeliveredTitle")}</strong>{t("marketplace.heroDeliveredSubtitle")}
         </div>
       </div>
       <div className="hero-floating two">
         <Truck size={22} />
         <div>
-          <strong>{t.heroOnWayTitle}</strong>{t.heroOnWaySubtitle}
+          <strong>{t("marketplace.heroOnWayTitle")}</strong>{t("marketplace.heroOnWaySubtitle")}
         </div>
       </div>
     </div>
@@ -78,7 +77,7 @@ export function ProductCard({ product: p }: { product: Product }) {
         <ProductMedia src={p.image_url} alt={p.name} />{" "}
         {p.discount_percent && (
           <span className="discount">
-            {Number(p.discount_percent)}{t.offDiscount}
+            {Number(p.discount_percent)}{t("marketplace.offDiscount")}
           </span>
         )}
       </Link>
@@ -112,7 +111,7 @@ export function ProductCard({ product: p }: { product: Product }) {
                 image_url: p.image_url,
                 seller_name: p.seller_name || "Seller",
               });
-              toast(t.addedToBag);
+              toast(t("marketplace.addedToBag"));
             }}
           >
             <Plus size={17} />
@@ -156,24 +155,24 @@ export function CatalogScreen({
           <>
             <section className="hero">
               <div>
-                <span className="eyebrow">{t.heroEyebrow}</span>
+                <span className="eyebrow">{t("marketplace.heroEyebrow")}</span>
                 <h1>
-                  {t.heroHeading1}
+                  {t("marketplace.heroHeading1")}
                   <br />
-                  {t.heroHeading2}
+                  {t("marketplace.heroHeading2")}
                   <br />
-                  <em>{t.heroHeading3}</em>
+                  <em>{t("marketplace.heroHeading3")}</em>
                 </h1>
-                <p>{t.heroSubtitle}</p>
+                <p>{t("marketplace.heroSubtitle")}</p>
                 <div className="button-row">
                   <Link href="#discover" className="button primary">
-                    {t.heroExploreBtn} <ArrowRight size={16} />
+                    {t("marketplace.heroExploreBtn")} <ArrowRight size={16} />
                   </Link>
                   <Link
                     href="/dashboard/parcels/new"
                     className="button secondary"
                   >
-                    {t.heroSendParcelBtn} <Package size={16} />
+                    {t("marketplace.heroSendParcelBtn")} <Package size={16} />
                   </Link>
                 </div>
               </div>
@@ -183,52 +182,52 @@ export function CatalogScreen({
               <div>
                 <Truck size={25} />
                 <div>
-                  <strong>{t.trustDoorTitle}</strong>
-                  <small>{t.trustDoorSub}</small>
+                  <strong>{t("marketplace.trustDoorTitle")}</strong>
+                  <small>{t("marketplace.trustDoorSub")}</small>
                 </div>
               </div>
               <div>
                 <ShieldCheck size={25} />
                 <div>
-                  <strong>{t.trustTrustTitle}</strong>
-                  <small>{t.trustTrustSub}</small>
+                  <strong>{t("marketplace.trustTrustTitle")}</strong>
+                  <small>{t("marketplace.trustTrustSub")}</small>
                 </div>
               </div>
               <div>
                 <Package size={25} />
                 <div>
-                  <strong>{t.trustTrackTitle}</strong>
-                  <small>{t.trustTrackSub}</small>
+                  <strong>{t("marketplace.trustTrackTitle")}</strong>
+                  <small>{t("marketplace.trustTrackSub")}</small>
                 </div>
               </div>
               <div>
                 <Heart size={25} />
                 <div>
-                  <strong>{t.trustBusinessTitle}</strong>
-                  <small>{t.trustBusinessSub}</small>
+                  <strong>{t("marketplace.trustBusinessTitle")}</strong>
+                  <small>{t("marketplace.trustBusinessSub")}</small>
                 </div>
               </div>
             </div>
           </>
         ) : (
           <PageHeading
-            eyebrow={t.marketHeadingEyebrow}
-            title={t.marketHeadingTitle}
-            description={t.marketHeadingSubtitle}
+            eyebrow={t("marketplace.headingEyebrow")}
+            title={t("marketplace.headingTitle")}
+            description={t("marketplace.headingSubtitle")}
           />
         )}
         <section id="discover">
           <div className="section-heading">
             <div>
-              <span className="eyebrow">{t.marketDiscoverEyebrow}</span>
+              <span className="eyebrow">{t("marketplace.discoverEyebrow")}</span>
               <h2>
-                {seller ? t.marketDiscoverFromSeller : t.marketDiscoverTitle}
+                {seller ? t("marketplace.discoverFromSeller") : t("marketplace.discoverTitle")}
               </h2>
-              <p>{t.marketDiscoverSubtitle}</p>
+              <p>{t("marketplace.discoverSubtitle")}</p>
             </div>
             {home && (
               <Link href="/products" className="text-link">
-                {t.marketExploreAll} <ArrowRight size={14} />
+                {t("marketplace.exploreAll")} <ArrowRight size={14} />
               </Link>
             )}
           </div>
@@ -254,16 +253,16 @@ export function CatalogScreen({
                   setSearch(s);
                   setPage(1);
                 }}
-                placeholder={t.searchPlaceholder}
+                placeholder={t("marketplace.searchPlaceholder")}
               />
               <select
-                aria-label={t.search}
+                aria-label={t("common.search")}
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
               >
-                <option value="latest">{t.sortLatest}</option>
-                <option value="price_asc">{t.sortPriceAsc}</option>
-                <option value="price_desc">{t.sortPriceDesc}</option>
+                <option value="latest">{t("marketplace.sortLatest")}</option>
+                <option value="price_asc">{t("marketplace.sortPriceAsc")}</option>
+                <option value="price_desc">{t("marketplace.sortPriceDesc")}</option>
               </select>
             </div>
           )}
@@ -290,8 +289,8 @@ export function CatalogScreen({
             </>
           ) : (
             <Empty
-              title={t.emptyTitle}
-              description={t.emptyDescription}
+              title={t("common.emptyTitle")}
+              description={t("common.emptyDescription")}
             />
           )}
         </section>
@@ -382,7 +381,7 @@ export function ProductDetailScreen({ id }: { id: string }) {
                         image_url: data.product.image_url,
                         seller_name: String(data.seller.name),
                       });
-                      toast(t.addedToBag);
+                      toast(t("marketplace.addedToBag"));
                     }}
                   >
                     <ShoppingBag size={17} />
@@ -462,14 +461,14 @@ export function CartScreen() {
       <PublicHeader />
       <main className="public-container">
         <PageHeading
-          eyebrow={t.marketHeadingEyebrow}
-          title={t.cartTitle}
-          description={t.cartSubtitle}
+          eyebrow={t("marketplace.headingEyebrow")}
+          title={t("marketplace.cart.title")}
+          description={t("marketplace.cart.subtitle")}
         />
         {orders ? (
           <Panel>
             <Empty
-              title={t.cartOrderPlaced}
+              title={t("marketplace.cart.orderPlaced")}
               description={
                 locale === "bn"
                   ? `অর্ডার নম্বর ${orders.map((i) => "#" + i).join(", ")} সফলভাবে সাবমিট হয়েছে। বিক্রেতা নিশ্চিত করলে আপনাকে জানানো হবে।`
@@ -477,7 +476,7 @@ export function CartScreen() {
               }
               action={
                 <Link href="/dashboard/orders" className="button primary">
-                  {t.navOrders} <ArrowRight size={15} />
+                  {t("nav.customer.orders")} <ArrowRight size={15} />
                 </Link>
               }
             />
@@ -513,7 +512,7 @@ export function CartScreen() {
                       }}
                       onClick={() => cart.remove(i.product_id)}
                     >
-                      {t.remove}
+                      {t("common.remove")}
                     </button>
                   </div>
                   <div className="price-row">
@@ -543,27 +542,27 @@ export function CartScreen() {
                 </div>
               ))}
             </Panel>
-            <Panel title={t.cartSummaryTitle}>
+            <Panel title={t("marketplace.cart.summaryTitle")}>
               <div className="cart-summary">
                 <div className="key-value">
-                  <span>{t.cartItemsSubtotal}</span>
+                  <span>{t("marketplace.cart.itemsSubtotal")}</span>
                   <strong>{money(subtotal)}</strong>
                 </div>
                 <div className="key-value">
-                  <span>{t.cartDeliveryEstimate}</span>
+                  <span>{t("marketplace.cart.deliveryEstimate")}</span>
                   <strong>{locale === "bn" ? "চেকআউটে নির্ধারিত হবে" : "Calculated at checkout"}</strong>
                 </div>
                 <p style={{ fontSize: 11, marginTop: 16 }}>
-                  {t.cartDeliveryNote}
+                  {t("marketplace.cart.deliveryNote")}
                 </p>
                 <label className="field" style={{ marginBottom: 20 }}>
-                  <span>{t.cartPaymentMethod}</span>
+                  <span>{t("marketplace.cart.paymentMethod")}</span>
                   <select
                     value={payment}
                     onChange={(e) => setPayment(e.target.value)}
                   >
-                    <option value="cod">{t.cartPaymentCod}</option>
-                    <option value="prepaid">{t.cartPaymentPrepaid}</option>
+                    <option value="cod">{t("marketplace.cart.paymentCod")}</option>
+                    <option value="prepaid">{t("marketplace.cart.paymentPrepaid")}</option>
                   </select>
                 </label>
                 {session?.user ? (
@@ -578,10 +577,10 @@ export function CartScreen() {
                             Omit<NonNullable<typeof quote>, "cartKey">
                           >("/orders/quote", JSON.parse(cartKey));
                           setQuote({ ...result, cartKey });
-                        }, t.cartPricesReviewed)
+                        }, t("marketplace.cart.pricesReviewed"))
                       }
                     >
-                      {t.cartReviewPrices}
+                      {t("marketplace.cart.reviewPrices")}
                     </Button>
                     {reviewed && (
                       <div style={{ margin: "20px 0" }}>
@@ -589,13 +588,13 @@ export function CartScreen() {
                           <div key={i}>
                             <h4>{g.seller_name}</h4>
                             <p>
-                              {locale === "bn" ? "পণ্য" : "Items"} {money(g.subtotal)} + {t.cartDeliveryLabel}{" "}
+                              {locale === "bn" ? "পণ্য" : "Items"} {money(g.subtotal)} + {t("marketplace.cart.deliveryLabel")}{" "}
                               {money(g.delivery_charge)}
                             </p>
                           </div>
                         ))}
                         <div className="key-value">
-                          <strong>{t.cartOrderTotal}</strong>
+                          <strong>{t("marketplace.cart.orderTotal")}</strong>
                           <strong>{money(reviewed.total)}</strong>
                         </div>
                       </div>
@@ -615,9 +614,9 @@ export function CartScreen() {
                           target="_blank"
                           className="text-link"
                         >
-                          {t.footerTerms}
+                          {t("footer.terms")}
                         </Link>
-                        {" "}{t.cartTermsAgree}
+                        {" "}{t("marketplace.cart.termsAgree")}
                       </span>
                     </label>
                     <Button
@@ -638,10 +637,10 @@ export function CartScreen() {
                           });
                           setOrders(result.order_ids);
                           cart.clear();
-                        }, t.cartOrderPlaced);
+                        }, t("marketplace.cart.orderPlaced"));
                       }}
                     >
-                      {t.cartPlaceOrder} <ArrowRight size={16} />
+                      {t("marketplace.cart.placeOrder")} <ArrowRight size={16} />
                     </Button>
                   </>
                 ) : (
@@ -649,7 +648,7 @@ export function CartScreen() {
                     className="button primary full-width"
                     href="/login?return=/cart"
                   >
-                    {t.cartSignInToCheckout} <ArrowRight size={16} />
+                    {t("marketplace.cart.signInToCheckout")} <ArrowRight size={16} />
                   </Link>
                 )}
               </div>
@@ -657,11 +656,11 @@ export function CartScreen() {
           </div>
         ) : (
           <Empty
-            title={t.cartEmptyTitle}
-            description={t.cartEmptyDesc}
+            title={t("marketplace.cart.emptyTitle")}
+            description={t("marketplace.cart.emptyDesc")}
             action={
               <Link className="button primary" href="/products">
-                {t.cartEmptyAction} <ArrowRight size={15} />
+                {t("marketplace.cart.emptyAction")} <ArrowRight size={15} />
               </Link>
             }
           />

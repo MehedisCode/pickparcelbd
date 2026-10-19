@@ -19,6 +19,7 @@ import {
 } from "@/components/ui";
 import { useResource } from "@/hooks/use-resource";
 import { api, date, label, money } from "@/lib/api";
+import { translateStatus } from "@/lib/i18n";
 import type { Paged, Parcel, User } from "@/lib/types";
 import { memberRoles } from "@/lib/types";
 import {
@@ -75,46 +76,28 @@ export function ParcelListScreen({
   }>(assign ? "/members" : null);
   const title =
     view === "custody"
-      ? locale === "bn"
-        ? "আমার হেফাজতে থাকা পার্সেল"
-        : "In your care"
+      ? t("nav.operations.custody")
       : view === "assigned"
-        ? locale === "bn"
-          ? "পিকআপের অনুরোধসমূহ"
-          : "Your pickup requests"
+        ? t("nav.operations.requests")
         : mode === "admin"
-          ? locale === "bn"
-            ? "জেলা পার্সেল নিয়ন্ত্রণ"
-            : "District parcel control"
+          ? t("nav.admin.parcels")
           : mode === "operations"
-            ? locale === "bn"
-              ? "চলমান পার্সেলসমূহ"
-              : "Parcels on the move"
-            : locale === "bn"
-              ? "আমার পার্সেলসমূহ"
-              : "Your parcels";
+            ? t("nav.operations.overview")
+            : t("parcels.listTitle");
   return (
     <>
       <PageHeading
         eyebrow={
           mode === "operations"
-            ? locale === "bn"
-              ? "ডেলিভারি অপারেশনস"
-              : "DELIVERY OPERATIONS"
-            : locale === "bn"
-              ? "প্রতিটি পদক্ষেপের নিখুঁত হিসাব"
-              : "EVERY JOURNEY, ACCOUNTED FOR"
+            ? t("parcels.listEyebrowOps")
+            : t("parcels.listEyebrowCustomer")
         }
         title={title}
-        description={
-          locale === "bn"
-            ? "সকল পার্সেল ও তার পরবর্তী পদক্ষেপের স্বচ্ছ তথ্য।"
-            : "A clear view of every parcel and its next step."
-        }
+        description={t("parcels.listDescription")}
         action={
           <Link href="/dashboard/parcels/new" className="button primary">
             <Plus size={15} />
-            {locale === "bn" ? "পার্সেল বুক করুন" : "Book a parcel"}
+            {t("parcels.bookParcel")}
           </Link>
         }
       />
@@ -125,23 +108,11 @@ export function ParcelListScreen({
           setPage(1);
         }}
         items={[
-          { id: "", label: locale === "bn" ? "সকল পার্সেল" : "All parcels" },
-          {
-            id: "pending",
-            label: locale === "bn" ? "পিকআপ অপেক্ষমান" : "Pending pickup",
-          },
-          {
-            id: "in_transit",
-            label: locale === "bn" ? "স্থানান্তরিত হচ্ছে" : "In transit",
-          },
-          {
-            id: "delivered",
-            label: locale === "bn" ? "ডেলিভারি সম্পন্ন" : "Delivered",
-          },
-          {
-            id: "returned",
-            label: locale === "bn" ? "রিটার্ন সম্পন্ন" : "Returned",
-          },
+          { id: "", label: t("parcels.tabs.all") },
+          { id: "pending", label: t("parcels.tabs.pending") },
+          { id: "in_transit", label: t("parcels.tabs.inTransit") },
+          { id: "delivered", label: t("parcels.tabs.delivered") },
+          { id: "returned", label: t("parcels.tabs.returned") },
         ]}
       />
       <div className="filter-row">
@@ -168,48 +139,32 @@ export function ParcelListScreen({
             setSearch(s);
             setPage(1);
           }}
-          placeholder={
-            locale === "bn"
-              ? "পার্সেল আইডি, প্রাপক বা ফোন নম্বর দিয়ে খুঁজুন…"
-              : "Search by parcel ID, recipient, or phone…"
-          }
+          placeholder={t("parcels.searchPlaceholder")}
         />
         <select
           value={status}
-          aria-label={
-            locale === "bn" ? "পার্সেল অবস্থা অনুযায়ী ফিল্টার" : "Filter parcel status"
-          }
+          aria-label={t("parcels.filterStatusAria")}
           onChange={(e) => {
             setStatus(e.target.value);
             setPage(1);
           }}
         >
-          <option value="">
-            {locale === "bn" ? "সকল স্ট্যাটাস" : "All statuses"}
-          </option>
+          <option value="">{t("parcels.allStatuses")}</option>
           {statuses.map((s) => (
             <option value={s} key={s}>
-              {t[`status${s.split("_").map((w) => w[0].toUpperCase() + w.slice(1)).join("")}` as keyof typeof t] || label(s)}
+              {translateStatus(s, locale)}
             </option>
           ))}
         </select>
         {selected.length > 0 && (
           <>
             <Button tone="secondary" onClick={() => setAssign(true)}>
-              {selected.length} {locale === "bn" ? "টি নির্বাচিত · রাইডার অ্যাসাইন" : "selected · Assign"}
+              {t("parcels.selectedAssign", { count: selected.length })}
             </Button>
             {mode !== "operations" && (
               <ConfirmAction
-                title={
-                  locale === "bn"
-                    ? "নির্বাচিত পিকআপ অ্যাসাইনমেন্ট বাতিল করবেন?"
-                    : "Cancel selected pickup assignments?"
-                }
-                description={
-                  locale === "bn"
-                    ? "নির্বাচিত পার্সেলগুলো অবশ্যই এখনও অ্যাসাইন অবস্থায় এবং পিকআপের পূর্বে থাকতে হবে।"
-                    : "All selected parcels must still be assigned and awaiting physical pickup."
-                }
+                title={t("parcels.cancelConfirmTitle")}
+                description={t("parcels.cancelConfirmDesc")}
                 onConfirm={async () => {
                   await api.post("/parcels/cancel-assignments", {
                     codes: selected,
@@ -217,9 +172,7 @@ export function ParcelListScreen({
                   setSelected([]);
                 }}
               >
-                {locale === "bn"
-                  ? "নির্বাচিত অ্যাসাইনমেন্ট বাতিল করুন"
-                  : "Cancel selected assignments"}
+                {t("parcels.cancelSelected")}
               </ConfirmAction>
             )}
             {mode === "operations" && (
@@ -230,7 +183,7 @@ export function ParcelListScreen({
                   );
                 }}
               >
-                {locale === "bn" ? "হস্তান্তর তৈরি করুন" : "Create handover"}
+                {t("parcels.createHandover")}
               </Button>
             )}
           </>
@@ -260,11 +213,11 @@ export function ParcelListScreen({
                       }
                     />
                   </th>
-                  <th>{locale === "bn" ? "পার্সেল ও তারিখ" : "Parcel & date"}</th>
-                  <th>{locale === "bn" ? "প্রাপক" : "Recipient"}</th>
-                  <th>{locale === "bn" ? "গন্তব্য" : "Destination"}</th>
-                  <th>{t.status}</th>
-                  <th>{locale === "bn" ? "চার্জ / সিওডি (COD)" : "Charge / COD"}</th>
+                  <th>{t("parcels.colParcelDate")}</th>
+                  <th>{t("parcels.colRecipient")}</th>
+                  <th>{t("parcels.colDestination")}</th>
+                  <th>{t("parcels.colStatus")}</th>
+                  <th>{t("parcels.colChargeCod")}</th>
                   <th />
                 </tr>
               </thead>
@@ -333,19 +286,11 @@ export function ParcelListScreen({
       ) : (
         <Panel>
           <Empty
-            title={
-              locale === "bn"
-                ? "এই তালিকায় কোনো পার্সেল পাওয়া যায়নি"
-                : "No parcels on this route yet."
-            }
-            description={
-              locale === "bn"
-                ? "ফিল্টার পরিবর্তন করুন, অথবা নতুন পার্সেল পাঠাতে বুক করুন।"
-                : "Try another filter, or book a parcel to start a new journey."
-            }
+            title={t("parcels.noParcelsTitle")}
+            description={t("parcels.noParcelsDesc")}
             action={
               <Link href="/dashboard/parcels/new" className="button primary">
-                {locale === "bn" ? "নতুন পার্সেল বুক করুন" : "Book your first parcel"}{" "}
+                {t("parcels.bookFirstParcel")}{" "}
                 <Plus size={15} />
               </Link>
             }
@@ -392,132 +337,89 @@ export function BookParcelScreen() {
     <>
       <BackLink
         href="/dashboard/parcels"
-        label={locale === "bn" ? "পার্সেল তালিকায় ফিরুন" : "Back to your parcels"}
+        label={t("parcels.backToList")}
       />
       <PageHeading
-        eyebrow={
-          locale === "bn"
-            ? "নতুন যাত্রা শুরু হোক এখান থেকেই"
-            : "A NEW JOURNEY STARTS HERE"
-        }
-        title={locale === "bn" ? "নতুন পার্সেল বুক করুন" : "Let’s send something good."}
-        description={
-          locale === "bn"
-            ? "কোথায় পাঠাতে চান জানান, বাকি দায়িত্ব আমাদের।"
-            : "Tell us where it’s going. We’ll take it from here."
-        }
+        eyebrow={t("parcels.newEyebrow")}
+        title={t("parcels.newTitle")}
+        description={t("parcels.newDescription")}
       />
       <div className="detail-grid">
-        <Panel
-          title={
-            locale === "bn"
-              ? "পার্সেল ও ডেলিভারি বিবরণ"
-              : "Parcel & delivery details"
-          }
-        >
+        <Panel title={t("parcels.formTitle")}>
           <Form
             initial={{
               pickup_address: session?.user?.address || "",
               weight_grams: 1000,
               cod_enabled: false,
             }}
-            submit={locale === "bn" ? "পার্সেল বুক করুন" : "Book parcel"}
+            submit={t("parcels.submitBook")}
             fields={[
               {
                 name: "delivery_name",
-                label: locale === "bn" ? "প্রাপকের নাম" : "Recipient’s name",
+                label: t("parcels.recipientName"),
                 required: true,
-                placeholder:
-                  locale === "bn"
-                    ? "কার কাছে পাঠানো হচ্ছে?"
-                    : "Who’s it going to?",
+                placeholder: t("parcels.recipientNamePlaceholder"),
               },
               {
                 name: "delivery_phone",
-                label: locale === "bn" ? "প্রাপকের ফোন নম্বর" : "Recipient’s phone",
+                label: t("parcels.recipientPhone"),
                 required: true,
                 type: "tel",
                 placeholder: "01XXXXXXXXX",
               },
               {
                 name: "delivery_address",
-                label:
-                  locale === "bn"
-                    ? "সম্পূর্ণ ডেলিভারি ঠিকানা"
-                    : "Full delivery address",
+                label: t("parcels.recipientAddress"),
                 required: true,
                 type: "textarea",
-                placeholder:
-                  locale === "bn"
-                    ? "বাসা, সড়ক, এলাকা এবং ডেলিভারি নির্দেশিকা"
-                    : "House, road, area, and delivery instructions",
+                placeholder: t("parcels.recipientAddressPlaceholder"),
               },
               {
                 name: "delivery_district",
-                label: locale === "bn" ? "জেলা" : "Delivery district",
-                placeholder: locale === "bn" ? "জেলা (ঐচ্ছিক)" : "District (optional)",
+                label: t("parcels.district"),
+                placeholder: t("parcels.districtPlaceholder"),
               },
               {
                 name: "delivery_upazila",
-                label:
-                  locale === "bn" ? "উপজেলা / থানা" : "Delivery upazila",
-                placeholder:
-                  locale === "bn" ? "উপজেলা (ঐচ্ছিক)" : "Upazila (optional)",
+                label: t("parcels.upazila"),
+                placeholder: t("parcels.upazilaPlaceholder"),
               },
               {
                 name: "pickup_address",
-                label: locale === "bn" ? "পিকআপের ঠিকানা" : "Pickup address",
+                label: t("parcels.pickupAddress"),
                 required: true,
                 type: "textarea",
               },
               {
                 name: "weight_grams",
-                label: locale === "bn" ? "ওজন (গ্রামে)" : "Weight in grams",
+                label: t("parcels.weightGrams"),
                 type: "number",
                 required: true,
                 min: 1,
                 max: 1000000,
-                help:
-                  locale === "bn"
-                    ? "১ কেজি = ১,০০০ গ্রাম"
-                    : "1 kilogram = 1,000 grams",
+                help: t("parcels.weightHelp"),
               },
               {
                 name: "cod_enabled",
-                label:
-                  locale === "bn"
-                    ? "ক্যাশ অন ডেলিভারি (COD) সংগ্রহ করুন"
-                    : "Collect cash on delivery",
+                label: t("parcels.codEnabled"),
                 type: "checkbox",
               },
               {
                 name: "cod_amount",
-                label:
-                  locale === "bn"
-                    ? "সিওডি (COD) পরিমাণ (৳)"
-                    : "COD amount (৳)",
+                label: t("parcels.codAmount"),
                 type: "number",
                 min: 0.01,
                 step: "0.01",
-                help:
-                  locale === "bn"
-                    ? "পণ্যের মোট মূল্য (ডেলিভারি চার্জ ব্যতীত)"
-                    : "Product amount to collect, excluding delivery charge",
+                help: t("parcels.codHelp"),
               },
               {
                 name: "note",
-                label:
-                  locale === "bn"
-                    ? "ডেলিভারি টিমের জন্য বিশেষ নির্দেশিকা"
-                    : "A note for the delivery team",
+                label: t("parcels.note"),
                 type: "textarea",
               },
               {
                 name: "terms_accepted",
-                label:
-                  locale === "bn"
-                    ? "আমি উল্লেখিত শর্তাবলী ও নীতিমালা পড়েছি এবং সম্মত আছি।"
-                    : "I have read and agree to the Terms & conditions linked below.",
+                label: t("parcels.termsAccepted"),
                 type: "checkbox",
                 required: true,
               },
@@ -533,53 +435,31 @@ export function BookParcelScreen() {
           />
           <div className="panel-body">
             <Link href="/terms" target="_blank" className="text-link">
-              {locale === "bn"
-                ? "শর্তাবলী ও নীতিমালা পড়ুন →"
-                : "Read Terms & conditions →"}
+              {t("parcels.readTerms")}
             </Link>
           </div>
         </Panel>
         <div>
-          <Panel
-            title={
-              locale === "bn"
-                ? "সহজ ও স্বচ্ছ ডেলিভারি চার্জ"
-                : "Simple, transparent delivery"
-            }
-          >
+          <Panel title={t("parcels.ratePanelTitle")}>
             <div className="panel-body">
               <div className="key-value">
-                <span>{locale === "bn" ? "প্রথম ১ কেজি পর্যন্ত" : "Up to 1 kg"}</span>
+                <span>{t("parcels.rateBase")}</span>
                 <strong>{money(data?.rates.base_charge || 60)}</strong>
               </div>
               <div className="key-value">
-                <span>
-                  {locale === "bn"
-                    ? "প্রতি অতিরিক্ত ১০০ গ্রাম"
-                    : "Each additional started 100 g"}
-                </span>
+                <span>{t("parcels.rateExtra")}</span>
                 <strong>{money(data?.rates.extra_per_100g || 3)}</strong>
               </div>
               <p style={{ fontSize: 11, marginTop: 18 }}>
-                {locale === "bn"
-                  ? "পার্সেলের ওজনের ওপর ভিত্তি করে চূড়ান্ত চার্জ নির্ধারিত হয়। পিকআপের সময় রাইডার ওজন যাচাই ও হালনাগাদ করতে পারেন।"
-                  : "The final charge is calculated from your parcel’s weight. Your pickup member may verify and update its weight."}
+                {t("parcels.rateExplanation")}
               </p>
               <div className="info-notice">
                 <ShieldCheck size={18} />
-                <p>
-                  {locale === "bn"
-                    ? "পিকআপ এবং ডেলিভারিতে ওটিপি/ভেরিফিকেশন কোড ব্যবহৃত হয়। পার্সেল হস্তান্তরের পরই কেবল সঠিক কোডটি শেয়ার করুন।"
-                    : "Pickup and delivery use verification codes. Only share the right code when the handover takes place."}
-                </p>
+                <p>{t("parcels.otpNotice")}</p>
               </div>
               <div className="info-notice">
                 <Package size={18} />
-                <p>
-                  {locale === "bn"
-                    ? "যত্নসহকারে পার্সেলটি প্যাকিং ও সিল করুন এবং প্রাপকের বিস্তারিত যোগাযোগ প্রস্তুত রাখুন।"
-                    : "Pack it with care. Seal your parcel and keep the recipient’s contact details handy."}
-                </p>
+                <p>{t("parcels.packingNotice")}</p>
               </div>
             </div>
           </Panel>

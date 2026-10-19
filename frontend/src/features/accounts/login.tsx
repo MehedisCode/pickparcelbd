@@ -47,7 +47,7 @@ export function LoginScreen() {
       <PublicHeader />
       <main className="login-page">
         <section className="login-story">
-          <span className="eyebrow">{t.loginStoryEyebrow}</span>
+          <span className="eyebrow">{t("auth.storyEyebrow")}</span>
           <h1>
             {locale === "bn" ? (
               <>
@@ -74,24 +74,24 @@ export function LoginScreen() {
               </>
             )}
           </h1>
-          <p>{t.loginStorySubtitle}</p>
+          <p>{t("auth.storySubtitle")}</p>
           <div className="login-benefit">
             <Package size={20} />
-            <span>{t.loginBenefitParcel}</span>
+            <span>{t("auth.benefitParcel")}</span>
           </div>
           <div className="login-benefit">
             <Truck size={20} />
-            <span>{t.loginBenefitCustomer}</span>
+            <span>{t("auth.benefitCustomer")}</span>
           </div>
           <div className="login-benefit">
             <ShieldCheck size={20} />
-            <span>{t.loginBenefitTrust}</span>
+            <span>{t("auth.benefitTrust")}</span>
           </div>
         </section>
         <section className="login-form-wrap">
-          <span className="eyebrow">{t.loginFormEyebrow}</span>
-          <h1>{t.loginFormHeading}</h1>
-          <p>{t.loginFormSubtitle}</p>
+          <span className="eyebrow">{t("auth.formEyebrow")}</span>
+          <h1>{t("auth.formHeading")}</h1>
+          <p>{t("auth.formSubtitle")}</p>
           {loginError && (
             <div className="info-notice" role="alert">
               <ShieldCheck size={20} />
@@ -100,7 +100,7 @@ export function LoginScreen() {
           )}
           {session?.user ? (
             <Link className="button primary full-width" href={continueTo}>
-              {t.loginContinueAs} {session.user.name.split(" ")[0]}{" "}
+              {t("auth.continueAs")} {session.user.name.split(" ")[0]}{" "}
               <CheckCircle2 size={17} />
             </Link>
           ) : loading ? (
@@ -112,7 +112,7 @@ export function LoginScreen() {
               className="google-button"
               href={`/auth/google${requestedReturn ? `?return=${encodeURIComponent(requestedReturn)}` : ""}`}
             >
-              <span className="google-g">G</span>{t.loginContinueGoogle}
+              <span className="google-g">G</span>{t("auth.continueGoogle")}
             </a>
           ) : (
             <div className="info-notice">
@@ -125,15 +125,15 @@ export function LoginScreen() {
             </div>
           )}
           <p style={{ fontSize: 10 }}>
-            {t.loginTermsNotice}{" "}
+            {t("auth.termsNotice")}{" "}
             <Link className="text-link" href="/terms">
-              {t.footerTerms}
+              {t("footer.terms")}
             </Link>
           </p>
           {session?.preview_available && (
             <div className="preview-logins">
-              <strong>{t.loginPreviewTitle}</strong>
-              <p>{t.loginPreviewSubtitle}</p>
+              <strong>{t("auth.previewTitle")}</strong>
+              <p>{t("auth.previewSubtitle")}</p>
               <div className="button-row">
                 {[
                   {

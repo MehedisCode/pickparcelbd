@@ -2,7 +2,8 @@
 
 import { api, refreshData } from "@/lib/api";
 import {
-  dictionaries,
+  catalogs,
+  createTranslator,
   formatTaka,
   LanguageContext,
   Locale,
@@ -14,6 +15,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -103,7 +105,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
     document.documentElement.lang = newLocale;
   }, []);
 
-  const t = dictionaries[locale] || dictionaries.bn;
+  const messages = catalogs[locale] || catalogs.bn;
+  const t = useMemo(() => createTranslator(locale), [locale]);
   const formatMoney = useCallback((val: unknown) => formatTaka(val), []);
   const formatStatus = useCallback(
     (status: string) => translateStatus(status, locale),
@@ -112,7 +115,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <LanguageContext.Provider
-      value={{ locale, t, setLocale, formatMoney, formatStatus }}
+      value={{
+        locale,
+        t,
+        messages,
+        setLocale,
+        formatMoney,
+        translateStatus: formatStatus,
+      }}
     >
       <SessionContext.Provider value={{ session, error, reload }}>
         <ToastContext.Provider value={notify}>

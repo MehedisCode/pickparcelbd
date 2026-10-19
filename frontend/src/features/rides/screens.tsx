@@ -105,9 +105,9 @@ export function RideScreen({ driver = false }: { driver?: boolean }) {
   return (
     <>
       <PageHeading
-        eyebrow={t.rideEyebrow}
-        title={t.rideTitle}
-        description={t.rideSubtitle}
+        eyebrow={t("rides.eyebrow")}
+        title={t("rides.title")}
+        description={t("rides.subtitle")}
         action={
           <Button
             tone="secondary"
@@ -130,13 +130,13 @@ export function RideScreen({ driver = false }: { driver?: boolean }) {
           className={`button ghost ${!driver ? "active" : ""}`}
           href="/ride-share"
         >
-          {t.ridePassengerMode}
+          {t("rides.passengerMode")}
         </Link>
         <Link
           className={`button ghost ${driver ? "active" : ""}`}
           href="/ride-share/driver"
         >
-          {t.rideDriverMode}
+          {t("rides.driverMode")}
         </Link>
       </div>
       <div className="info-notice">
@@ -263,7 +263,7 @@ export function RideScreen({ driver = false }: { driver?: boolean }) {
                   fields={[
                     {
                       name: "pickup",
-                      label: t.ridePickupLabel,
+                      label: t("rides.pickupLabel"),
                       required: true,
                       placeholder:
                         locale === "bn"
@@ -272,7 +272,7 @@ export function RideScreen({ driver = false }: { driver?: boolean }) {
                     },
                     {
                       name: "destination",
-                      label: t.rideDestinationLabel,
+                      label: t("rides.destinationLabel"),
                       required: true,
                       placeholder:
                         locale === "bn"
@@ -280,7 +280,7 @@ export function RideScreen({ driver = false }: { driver?: boolean }) {
                           : "Where would you like to go?",
                     },
                   ]}
-                  submit={t.rideRequestBtn}
+                  submit={t("rides.requestBtn")}
                   onSubmit={async (d) => {
                     if (!gps)
                       throw new Error(

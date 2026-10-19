@@ -121,7 +121,7 @@ export function OverviewScreen({
         eyebrow={today.toUpperCase()}
         title={
           mode === "admin"
-            ? `${user?.district || t.brandName} ${locale === "bn" ? "ওভারভিউ" : "at a glance"}`
+            ? `${user?.district || t("nav.brandName")} ${locale === "bn" ? "ওভারভিউ" : "at a glance"}`
             : locale === "bn"
               ? `${new Date().getHours() < 12 ? "শুভ সকাল" : "শুভ অপরাহ্ন"}, ${user?.name.split(" ")[0] || ""}!`
               : `Good ${new Date().getHours() < 12 ? "morning" : "afternoon"}, ${user?.name.split(" ")[0] || "there"}.`
@@ -291,7 +291,7 @@ export function OverviewScreen({
             </Link>
             <Link className="quick-action" href="/dashboard/cash-memos">
               <FileText size={22} />
-              <span>{t.navCashMemos}</span>
+              <span>{t("nav.customer.cashMemos")}</span>
             </Link>
           </div>
           <div className="panel-body" style={{ paddingTop: 0 }}>
@@ -331,7 +331,7 @@ export function OverviewScreen({
                   <tr>
                     <th>{locale === "bn" ? "পার্সেল" : "Parcel"}</th>
                     <th>{locale === "bn" ? "গন্তব্য" : "Going to"}</th>
-                    <th>{t.status}</th>
+                    <th>{t("common.status")}</th>
                     <th>{locale === "bn" ? "ডেলিভারি চার্জ" : "Delivery charge"}</th>
                   </tr>
                 </thead>

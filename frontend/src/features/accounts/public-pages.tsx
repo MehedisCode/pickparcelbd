@@ -40,12 +40,12 @@ export function TrackingScreen({ initialCode = "" }: { initialCode?: string }) {
         })
         .catch((e) => {
           if (active)
-            setError(e instanceof Error ? e.message : t.trackingNotFound);
+            setError(e instanceof Error ? e.message : t("tracking.notFound"));
         });
     return () => {
       active = false;
     };
-  }, [initialCode, t.trackingNotFound]);
+  }, [initialCode, t("tracking.notFound")]);
   return (
     <>
       <PublicHeader />
@@ -54,9 +54,9 @@ export function TrackingScreen({ initialCode = "" }: { initialCode?: string }) {
         style={{ maxWidth: 850, minHeight: "65vh" }}
       >
         <div className="section-intro">
-          <span className="eyebrow">{t.trackingEyebrow}</span>
-          <h1>{t.trackingTitle}</h1>
-          <p>{t.trackingSubtitle}</p>
+          <span className="eyebrow">{t("tracking.eyebrow")}</span>
+          <h1>{t("tracking.title")}</h1>
+          <p>{t("tracking.subtitle")}</p>
         </div>
         <Panel>
           <form
@@ -74,7 +74,7 @@ export function TrackingScreen({ initialCode = "" }: { initialCode?: string }) {
                 setError(
                   e instanceof Error
                     ? e.message
-                    : t.trackingNotFound,
+                    : t("tracking.notFound"),
                 );
               } finally {
                 setBusy(false);
@@ -82,18 +82,18 @@ export function TrackingScreen({ initialCode = "" }: { initialCode?: string }) {
             }}
           >
             <label className="field" style={{ flex: 1 }}>
-              <span>{t.trackingInputLabel}</span>
+              <span>{t("tracking.inputLabel")}</span>
               <input
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 required
-                placeholder={t.trackingInputPlaceholder}
+                placeholder={t("tracking.inputPlaceholder")}
                 maxLength={9}
               />
             </label>
             <Button disabled={busy} type="submit" style={{ alignSelf: "end" }}>
               <Search size={16} />
-              {t.trackingButton}
+              {t("tracking.button")}
             </Button>
           </form>
           {busy && <Loading />}
@@ -109,7 +109,7 @@ export function TrackingScreen({ initialCode = "" }: { initialCode?: string }) {
                 <div className="route-line">
                   <span>{data.parcel.pickup_district}</span>
                   <span>→</span>
-                  <span>{data.parcel.delivery_district || t.trackingDestination}</span>
+                  <span>{data.parcel.delivery_district || t("tracking.destination")}</span>
                 </div>
                 <div className="timeline">
                   {data.events.map((e, i) => (
@@ -128,7 +128,7 @@ export function TrackingScreen({ initialCode = "" }: { initialCode?: string }) {
             </Panel>
             <div className="info-notice" style={{ marginTop: 20 }}>
               <ShieldCheck size={20} />
-              <p>{t.trackingPrivacyNotice}</p>
+              <p>{t("tracking.privacyNotice")}</p>
             </div>
           </div>
         )}
@@ -150,22 +150,22 @@ export function HelpScreen() {
         style={{ maxWidth: 900, minHeight: "65vh" }}
       >
         <div className="section-intro">
-          <span className="eyebrow">{t.helpEyebrow}</span>
-          <h1>{t.helpTitle}</h1>
-          <p>{t.helpSubtitle}</p>
+          <span className="eyebrow">{t("help.eyebrow")}</span>
+          <h1>{t("help.title")}</h1>
+          <p>{t("help.subtitle")}</p>
         </div>
         <div className="detail-grid">
-          <Panel title={t.helpOrdersPanelTitle}>
+          <Panel title={t("help.ordersPanelTitle")}>
             <div className="panel-body">
               <Headphones size={28} color="var(--green)" />
-              <h3>{t.helpOrdersHeading}</h3>
-              <p>{t.helpOrdersText}</p>
+              <h3>{t("help.ordersHeading")}</h3>
+              <p>{t("help.ordersText")}</p>
               <Link className="button primary" href="/dashboard/orders">
-                {t.helpOrdersBtn}
+                {t("help.ordersBtn")}
               </Link>
             </div>
           </Panel>
-          <Panel title={t.helpContactPanelTitle}>
+          <Panel title={t("help.contactPanelTitle")}>
             <div className="panel-body">
               {data?.support.phone && (
                 <p>
@@ -188,26 +188,26 @@ export function HelpScreen() {
                     : "Direct support contact details will appear here when configured by PickParcelBD."}
                 </p>
               )}
-              <p>{t.helpWorkingHours}</p>
+              <p>{t("help.workingHours")}</p>
               <Link className="text-link" href="/tracking">
-                {t.navTracking} →
+                {t("nav.tracking")} →
               </Link>
             </div>
           </Panel>
         </div>
-        <Panel title={t.helpFaqTitle}>
+        <Panel title={t("help.faqTitle")}>
           <div className="panel-body">
             <details>
-              <summary>{t.helpFaq1Q}</summary>
-              <p>{t.helpFaq1A}</p>
+              <summary>{t("help.faq1Q")}</summary>
+              <p>{t("help.faq1A")}</p>
             </details>
             <details>
-              <summary>{t.helpFaq2Q}</summary>
-              <p>{t.helpFaq2A}</p>
+              <summary>{t("help.faq2Q")}</summary>
+              <p>{t("help.faq2A")}</p>
             </details>
             <details>
-              <summary>{t.helpFaq3Q}</summary>
-              <p>{t.helpFaq3A}</p>
+              <summary>{t("help.faq3Q")}</summary>
+              <p>{t("help.faq3A")}</p>
             </details>
           </div>
         </Panel>

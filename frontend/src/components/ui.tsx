@@ -52,10 +52,10 @@ export function PageHeading({
   );
 }
 export function Badge({ value }: { value: unknown }) {
-  const { formatStatus } = useI18n();
+  const { translateStatus } = useI18n();
   return (
     <span className={`badge ${String(value)}`}>
-      {formatStatus(String(value))}
+      {translateStatus(String(value))}
     </span>
   );
 }
@@ -74,8 +74,8 @@ export function Empty({
       <div className="empty-icon">
         <Inbox size={28} />
       </div>
-      <h3>{title || t.emptyTitle}</h3>
-      <p>{description || t.emptyDescription}</p>
+      <h3>{title || t("common.emptyTitle")}</h3>
+      <p>{description || t("common.emptyDescription")}</p>
       {action}
     </div>
   );
@@ -85,7 +85,7 @@ export function Loading({ message }: { message?: string }) {
   return (
     <div className="loading-state" role="status">
       <LoaderCircle className="spin" size={24} />
-      <span>{message || t.loadingWorkspace}</span>
+      <span>{message || t("common.loadingWorkspace")}</span>
     </div>
   );
 }
@@ -100,11 +100,11 @@ export function ErrorState({
   return (
     <div className="error-state" role="alert">
       <TriangleAlert size={22} />
-      <h3>{t.errorTitle}</h3>
+      <h3>{t("common.errorTitle")}</h3>
       <p>{message}</p>
       {retry && (
         <Button tone="secondary" onClick={retry}>
-          {t.errorRetry}
+          {t("common.errorRetry")}
         </Button>
       )}
     </div>
@@ -142,7 +142,7 @@ export function Pagination({
   last: number;
   onChange: (n: number) => void;
 }) {
-  const { locale } = useI18n();
+  const { t, locale } = useI18n();
   if (last <= 1) return null;
   return (
     <div className="pagination">
@@ -151,7 +151,7 @@ export function Pagination({
         disabled={page <= 1}
         onClick={() => onChange(page - 1)}
       >
-        <ArrowLeft size={15} /> {locale === "bn" ? "পূর্ববর্তী" : "Previous"}
+        <ArrowLeft size={15} /> {t("common.previous")}
       </Button>
       <span>
         {locale === "bn"
@@ -163,7 +163,7 @@ export function Pagination({
         disabled={page >= last}
         onClick={() => onChange(page + 1)}
       >
-        {locale === "bn" ? "পরবর্তী" : "Next"} <ArrowRight size={15} />
+        {t("common.next")} <ArrowRight size={15} />
       </Button>
     </div>
   );
@@ -178,7 +178,7 @@ export function SearchInput({
   placeholder?: string;
 }) {
   const { t } = useI18n();
-  const ph = placeholder || t.searchPlaceholder;
+  const ph = placeholder || t("common.search");
   return (
     <div className="search-input">
       <Search size={17} />
@@ -189,7 +189,7 @@ export function SearchInput({
         onChange={(e) => onChange(e.target.value)}
       />
       {value && (
-        <button onClick={() => onChange("")} aria-label={t.remove}>
+        <button onClick={() => onChange("")} aria-label={t("common.remove")}>
           <X size={14} />
         </button>
       )}
@@ -426,7 +426,7 @@ export function BackLink({
   return (
     <Link href={href} className="back-link">
       <ArrowLeft size={16} />
-      {caption || t.back}
+      {caption || t("common.back")}
     </Link>
   );
 }
@@ -460,6 +460,7 @@ export function ConfirmAction({
 }) {
   const [open, setOpen] = useState(false);
   const { run, busy } = useAction();
+  const { t } = useI18n();
   return (
     <>
       <Button tone="secondary" onClick={() => setOpen(true)}>
@@ -470,7 +471,7 @@ export function ConfirmAction({
           <p>{description}</p>
           <div className="button-row">
             <Button tone="secondary" onClick={() => setOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               disabled={busy}
@@ -478,7 +479,7 @@ export function ConfirmAction({
                 if (await run(onConfirm)) setOpen(false);
               }}
             >
-              Confirm
+              {t("common.confirm")}
             </Button>
           </div>
         </Modal>

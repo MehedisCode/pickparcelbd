@@ -62,7 +62,7 @@ export function Brand({ compact = false }: { compact?: boolean }) {
       </span>
       <span>
         PickParcel<span className="brand-bd">BD</span>
-        <small>{t.brandTagline}</small>
+        <small>{t("nav.brandTagline")}</small>
       </span>
     </Link>
   );
@@ -87,41 +87,41 @@ export function PublicHeader() {
     <>
       <div className="announcement">
         <span>
-          <MapPin size={13} /> {t.announcementText}
+          <MapPin size={13} /> {t("nav.announcementText")}
         </span>
         <Link href="/help">
-          {t.announcementHelp} <ChevronRight size={13} />
+          {t("nav.announcementHelp")} <ChevronRight size={13} />
         </Link>
       </div>
       <header className="public-header">
         <Brand />
         <nav className={open ? "open" : ""}>
-          <Link href="/products">{t.navMarketplace}</Link>
-          <Link href="/tracking">{t.navTracking}</Link>
+          <Link href="/products">{t("nav.marketplace")}</Link>
+          <Link href="/tracking">{t("nav.tracking")}</Link>
           <Link
             href={session?.user ? "/ride-share" : "/login?return=/ride-share"}
           >
-            {t.navRideShare}
+            {t("nav.rideShare")}
           </Link>
-          <Link href="/help">{t.navHelp}</Link>
-          <Link href="/deployment-check">{t.navDeploymentCheck}</Link>
+          <Link href="/help">{t("nav.help")}</Link>
+          <Link href="/deployment-check">{t("nav.deploymentCheck")}</Link>
         </nav>
         <div className="header-actions">
           <LanguageSwitcher />
-          <Link href="/cart" className="icon-button" aria-label={t.shoppingBagAria}>
+          <Link href="/cart" className="icon-button" aria-label={t("nav.shoppingBagAria")}>
             <ShoppingBag size={20} />
           </Link>
           <Link
             className="button primary"
             href={session?.user ? "/dashboard" : "/login"}
           >
-            {session?.user ? t.btnMyWorkspace : t.btnGetStarted}
+            {session?.user ? t("nav.myWorkspace") : t("nav.getStarted")}
             <ChevronRight size={15} />
           </Link>
           <Button
             tone="ghost"
             className="mobile-menu"
-            aria-label={t.toggleNavAria}
+            aria-label={t("nav.toggleNavAria")}
             onClick={() => setOpen(!open)}
           >
             <Menu size={21} />
@@ -136,11 +136,11 @@ export function PublicFooter() {
   return (
     <footer className="public-footer">
       <Brand compact />
-      <p>{t.footerTagline}</p>
+      <p>{t("footer.tagline")}</p>
       <div>
-        <Link href="/terms">{t.footerTerms}</Link>
-        <Link href="/help">{t.footerContact}</Link>
-        <span>© {new Date().getFullYear()} PickParcelBD · {t.footerRights}</span>
+        <Link href="/terms">{t("footer.terms")}</Link>
+        <Link href="/help">{t("footer.contact")}</Link>
+        <span>© {new Date().getFullYear()} PickParcelBD · {t("footer.rights")}</span>
       </div>
     </footer>
   );
@@ -159,55 +159,55 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const operations = path.startsWith("/operations");
 
   const customerLinks = [
-    { href: "/dashboard", label: t.navOverview, icon: LayoutDashboard },
-    { href: "/dashboard/parcels", label: t.navMyParcels, icon: Package },
-    { href: "/dashboard/orders", label: t.navOrders, icon: ClipboardList },
-    { href: "/dashboard/products", label: t.navMyProducts, icon: Store },
-    { href: "/dashboard/cash-memos", label: t.navCashMemos, icon: FileText },
-    { href: "/dashboard/messages", label: t.navMessages, icon: MessageCircle },
-    { href: "/dashboard/wallet", label: t.navWallet, icon: Wallet },
+    { href: "/dashboard", label: t("nav.customer.overview"), icon: LayoutDashboard },
+    { href: "/dashboard/parcels", label: t("nav.customer.myParcels"), icon: Package },
+    { href: "/dashboard/orders", label: t("nav.customer.orders"), icon: ClipboardList },
+    { href: "/dashboard/products", label: t("nav.customer.myProducts"), icon: Store },
+    { href: "/dashboard/cash-memos", label: t("nav.customer.cashMemos"), icon: FileText },
+    { href: "/dashboard/messages", label: t("nav.customer.messages"), icon: MessageCircle },
+    { href: "/dashboard/wallet", label: t("nav.customer.wallet"), icon: Wallet },
   ];
   const operationsLinks = [
-    { href: "/operations", label: t.navOpsOverview, icon: Truck },
+    { href: "/operations", label: t("nav.operations.overview"), icon: Truck },
     {
       href: "/operations/requests",
-      label: t.navOpsRequests,
+      label: t("nav.operations.requests"),
       icon: ClipboardList,
     },
     {
       href: "/operations/assignments",
-      label: t.navOpsAssignments,
+      label: t("nav.operations.assignments"),
       icon: Package,
     },
-    { href: "/operations/custody", label: t.navOpsCustody, icon: Package },
+    { href: "/operations/custody", label: t("nav.operations.custody"), icon: Package },
     {
       href: "/operations/transfers",
-      label: t.navOpsTransfers,
+      label: t("nav.operations.transfers"),
       icon: ArrowRightLeft,
     },
     {
       href: "/operations/transfers/receive",
-      label: t.navOpsReceive,
+      label: t("nav.operations.receive"),
       icon: ScanLine,
     },
   ];
   const adminLinks = [
-    { href: "/admin", label: t.navAdminOverview, icon: LayoutDashboard },
-    { href: "/admin/users", label: t.navAdminUsers, icon: Users },
-    { href: "/admin/riders-agents", label: t.navAdminRidersAgents, icon: Bike },
-    { href: "/admin/parcels", label: t.navAdminParcels, icon: Package },
-    { href: "/admin/finance", label: t.navAdminFinance, icon: Wallet },
+    { href: "/admin", label: t("nav.admin.overview"), icon: LayoutDashboard },
+    { href: "/admin/users", label: t("nav.admin.users"), icon: Users },
+    { href: "/admin/riders-agents", label: t("nav.admin.ridersAgents"), icon: Bike },
+    { href: "/admin/parcels", label: t("nav.admin.parcels"), icon: Package },
+    { href: "/admin/finance", label: t("nav.admin.finance"), icon: Wallet },
     {
       href: "/admin/audits",
-      label: t.navAdminAudits,
+      label: t("nav.admin.audits"),
       icon: ShieldCheck,
     },
     {
       href: "/admin/recovery",
-      label: t.navAdminRecovery,
+      label: t("nav.admin.recovery"),
       icon: ArrowDownLeft,
     },
-    { href: "/admin/reports", label: t.navAdminReports, icon: FileText },
+    { href: "/admin/reports", label: t("nav.admin.reports"), icon: FileText },
   ];
   if (error)
     return (
@@ -281,21 +281,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div>
             <strong>
               {admin
-                ? t.wsDistrictControl
+                ? t("nav.districtControl")
                 : operations
-                  ? t.wsDeliveryNetwork
-                  : t.wsMyBusiness}
+                  ? t("nav.deliveryNetwork")
+                  : t("nav.myBusiness")}
             </strong>
-            <span>{user.district || t.brandName}</span>
+            <span>{user.district || t("nav.brandName")}</span>
           </div>
           <ChevronDown size={14} />
         </div>
         <p className="nav-caption">
           {admin
-            ? t.wsAdministration
+            ? t("nav.administration")
             : operations
-              ? t.wsDeliveryOperations
-              : t.wsWorkspace}
+              ? t("nav.deliveryOperations")
+              : t("nav.workspace")}
         </p>
         <nav className="sidebar-nav">
           {links.map((i) => (
@@ -311,58 +311,58 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
         </nav>
-        <p className="nav-caption">{t.wsExploreMore}</p>
+        <p className="nav-caption">{t("nav.exploreMore")}</p>
         <nav className="sidebar-nav">
           <Link href="/products">
             <ShoppingBag size={19} />
-            {t.navMarketplace}
+            {t("nav.marketplace")}
             <ChevronRight size={14} />
           </Link>
           <Link href="/ride-share">
             <Bike size={19} />
-            {t.navRideShare}
+            {t("nav.rideShare")}
           </Link>
           {(admin || operations) && (
             <Link href="/dashboard">
               <Store size={19} />
-              {t.wsMyBusiness}
+              {t("nav.myBusiness")}
             </Link>
           )}
           {!operations && memberRoles.includes(user.role) && (
             <Link href="/operations">
               <Truck size={19} />
-              {t.wsDeliveryOperations}
+              {t("nav.deliveryOperations")}
             </Link>
           )}
           {!admin && user.role === "super_admin" && (
             <Link href="/admin">
               <ShieldCheck size={19} />
-              {t.wsDistrictControl}
+              {t("nav.districtControl")}
             </Link>
           )}
           <Link href="/dashboard/following">
             <Heart size={19} />
-            {t.navFollowing}
+            {t("nav.customer.following")}
           </Link>
           <Link href="/dashboard/news">
             <FileText size={19} />
-            {t.navNews}
+            {t("nav.customer.news")}
           </Link>
           <Link href="/dashboard/buyer-blocks">
             <ShieldCheck size={19} />
-            {t.navBuyerBlocks}
+            {t("nav.customer.buyerBlocks")}
           </Link>
           <Link href="/dashboard/settings">
             <Settings size={19} />
-            {t.navSettings}
+            {t("nav.customer.settings")}
           </Link>
         </nav>
         <div className="sidebar-help">
           <Headphones size={24} />
-          <strong>{t.wsHelpTitle}</strong>
-          <p>{t.wsHelpSubtitle}</p>
+          <strong>{t("nav.helpTitle")}</strong>
+          <p>{t("nav.helpSubtitle")}</p>
           <Link href="/help">
-            {t.wsHelpTalk} <ChevronRight size={14} />
+            {t("nav.helpTalk")} <ChevronRight size={14} />
           </Link>
         </div>
         <div className="sidebar-account">
@@ -373,8 +373,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           <button
             className="icon-button"
-            aria-label={t.wsSignOut}
-            title={t.wsSignOut}
+            aria-label={t("nav.signOut")}
+            title={t("nav.signOut")}
             onClick={async () => {
               try {
                 await api.post("/auth/logout");
@@ -405,15 +405,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </button>
             <span>
               {admin
-                ? t.wsDistrictControl
+                ? t("nav.districtControl")
                 : operations
-                  ? t.wsDeliveryOperations
-                  : t.wsWorkspace}
+                  ? t("nav.deliveryOperations")
+                  : t("nav.workspace")}
             </span>
             <ChevronRight size={13} />
             <strong>
               {path.split("/").filter(Boolean).at(-1)?.replaceAll("-", " ") ||
-                t.navOverview}
+                t("nav.customer.overview")}
             </strong>
           </div>
           <div className="topbar-right">
@@ -428,8 +428,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             >
               <Search size={17} />
               <input
-                placeholder={t.wsSearchPlaceholder}
-                aria-label={t.wsSearchPlaceholder}
+                placeholder={t("nav.searchPlaceholder")}
+                aria-label={t("nav.searchPlaceholder")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -448,7 +448,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
         <main className="workspace-content">{children}</main>
         <footer className="workspace-footer">
-          <span>{t.wsFooterNote}</span>
+          <span>{t("footer.note")}</span>
           <span>
             <span className="system-dot" /> PickParcelBD · {user.district}
           </span>

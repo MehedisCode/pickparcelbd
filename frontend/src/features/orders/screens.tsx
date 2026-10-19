@@ -1,5 +1,6 @@
 "use client";
 import { useAction, useI18n, useSession } from "@/components/providers";
+import { translateStatus } from "@/lib/i18n";
 import {
   BackLink,
   Badge,
@@ -113,19 +114,13 @@ export function OrdersScreen() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>{locale === "bn" ? "অর্ডার" : "Order"}</th>
+                  <th>{t("orders.colOrder")}</th>
                   <th>
-                    {side === "purchases"
-                      ? locale === "bn"
-                        ? "বিক্রেতা"
-                        : "Seller"
-                      : locale === "bn"
-                        ? "ক্রেতা"
-                        : "Buyer"}
+                    {side === "purchases" ? t("orders.colSeller") : t("orders.colBuyer")}
                   </th>
-                  <th>{t.status}</th>
-                  <th>{locale === "bn" ? "সর্বমোট" : "Total"}</th>
-                  <th>{locale === "bn" ? "পেমেন্ট মাধ্যম" : "Payment"}</th>
+                  <th>{t("orders.colStatus")}</th>
+                  <th>{t("orders.colTotal")}</th>
+                  <th>{t("orders.colPayment")}</th>
                   <th />
                 </tr>
               </thead>
@@ -144,20 +139,14 @@ export function OrdersScreen() {
                     </td>
                     <td>{money(o.total)}</td>
                     <td>
-                      {o.cod_enabled
-                        ? locale === "bn"
-                          ? "ক্যাশ অন ডেলিভারি (COD)"
-                          : "Cash on delivery"
-                        : locale === "bn"
-                          ? "প্রিপেইড"
-                          : "Prepaid"}
+                      {o.cod_enabled ? t("orders.cod") : t("orders.prepaid")}
                     </td>
                     <td>
                       <Link
                         className="text-link"
                         href={`/dashboard/orders/${o.id}`}
                       >
-                        {locale === "bn" ? "বিস্তারিত" : "Details"}{" "}
+                        {t("orders.details")}{" "}
                         <ArrowRight size={13} />
                       </Link>
                     </td>
@@ -200,13 +189,7 @@ export function OrdersScreen() {
                   side === "sales" ? "/dashboard/products/new" : "/products"
                 }
               >
-                {side === "sales"
-                  ? locale === "bn"
-                    ? "নতুন পণ্য যোগ করুন"
-                    : "List a product"
-                  : locale === "bn"
-                    ? "মার্কেটপ্লেস দেখুন"
-                    : "Explore marketplace"}
+                {side === "sales" ? t("orders.listProduct") : t("orders.exploreMarketplace")}
                 <ArrowRight size={15} />
               </Link>
             }
