@@ -5,7 +5,7 @@ return [
     'geocoding_url' => env('GEOCODING_URL', 'https://nominatim.openstreetmap.org'),
     'geocoding_user_agent' => env('GEOCODING_USER_AGENT', 'PickParcelBD/1.0 (+https://pickparcelbd.com)'),
     'frontend_url' => env('FRONTEND_URL', 'http://127.0.0.1:3000'),
-    'preview_login' => env('PREVIEW_LOGIN', false),
+    'preview_login' => env('PREVIEW_LOGIN', in_array(env('APP_ENV'), ['staging', 'local'], true)),
     'base_charge' => '60.00',
     'extra_per_100g' => '3.00',
     'included_weight_grams' => 1000,

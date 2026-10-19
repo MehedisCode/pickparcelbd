@@ -19,7 +19,11 @@ class AuthController extends Controller
     {
         $user = Auth::guard('web')->user();
 
-        return response()->json(['user' => $user, 'profile_complete' => $user?->profileComplete() ?? false, 'preview_available' => app()->environment('local') && config('pickparcel.preview_login')]);
+        return response()->json([
+            'user' => $user,
+            'profile_complete' => $user?->profileComplete() ?? false,
+            'preview_available' => $this->previewAllowed(),
+        ]);
     }
 
     public function redirect(Request $r)
@@ -86,7 +90,7 @@ class AuthController extends Controller
 
     public function preview(Request $r)
     {
-        abort_unless(app()->environment('local') && config('pickparcel.preview_login'), 404);
+        abort_unless($this->previewAllowed(), 404);
         $data = $r->validate(['email' => 'required|email']);
         abort_unless(str_ends_with($data['email'], '@preview.example'), 403);
         $u = User::where('email', $data['email'])->firstOrFail();
@@ -94,6 +98,11 @@ class AuthController extends Controller
         $r->session()->regenerate();
 
         return response()->json(['user' => $u]);
+    }
+
+    private function previewAllowed(): bool
+    {
+        return app()->environment('local', 'staging') || (bool) config('pickparcel.preview_login');
     }
 
     public function logout(Request $r)

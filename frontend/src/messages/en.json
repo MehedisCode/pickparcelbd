@@ -403,8 +403,8 @@
     "formSubtitle": "New here? Continue with Google to create your account. Already registered? Use the same Google account to sign in.",
     "continueGoogle": "Continue with Google",
     "termsNotice": "By continuing, you agree to our terms & conditions. Your account keeps your business connected.",
-    "previewTitle": "Local development preview",
-    "previewSubtitle": "These are fictional accounts in an isolated local database. Preview sign-in is disabled in production.",
+    "previewTitle": "Development & staging preview",
+    "previewSubtitle": "Sign in to a preconfigured test account to explore workspace features on local and staging.",
     "continueAs": "Continue as"
   },
   "profile": {
