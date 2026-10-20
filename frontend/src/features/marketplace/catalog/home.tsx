@@ -654,7 +654,7 @@ export function CatalogScreen({
       {/* 8. MOBILE BOTTOM NAVIGATION (STICKY ON MOBILE ONLY) */}
       <nav
         aria-label={t("marketplace.home.mobileNav")}
-        className="fixed bottom-0 left-0 right-0 z-40 block border-t border-brand-line bg-white/95 pb-safe backdrop-blur-md md:hidden"
+        className="catalog-bottom-nav fixed z-40 block border border-brand-line bg-white/95 backdrop-blur-md md:hidden"
       >
         <div className="flex h-16 items-center justify-around px-2">
           <Link
@@ -719,7 +719,7 @@ export function CatalogScreen({
       </nav>
 
       {/* Spacer to guarantee bottom nav never covers footer or content */}
-      <div className="h-16 md:hidden" aria-hidden="true" />
+      <div className="h-24 md:hidden" aria-hidden="true" />
 
       <PublicFooter />
     </>

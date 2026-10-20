@@ -1,5 +1,14 @@
 /* Marketplace responsive states and supporting layouts. */
 @layer components {
+  @media (max-width: 767px) {
+    .catalog-bottom-nav {
+      bottom: max(20px, env(safe-area-inset-bottom, 0px));
+      left: 10px;
+      right: 10px;
+      border-radius: 18px;
+      box-shadow: 0 -4px 16px #073f3c13;
+    }
+  }
   @media (min-width: 640px) {
     .home-hero #hero-title {
       font-size: 40px;
