@@ -1,0 +1,34 @@
+/* Single source of truth for Tailwind utilities and legacy semantic styles. */
+@theme {
+  --color-brand-orange: #c9480a;
+  --color-brand-orange-dark: #a93403;
+  --color-brand-orange-soft: #fff0e8;
+  --color-brand-navy: #073f3c;
+  --color-brand-ink: #162b2b;
+  --color-brand-muted: #586a69;
+  --color-brand-line: #dae5e2;
+  --color-brand-bg: #f3f7f6;
+  --color-brand-green: #006b61;
+  --color-brand-green-soft: #e7f5f2;
+  --color-brand-mint: #e7f5f2;
+  --font-sans: "DM Sans", "Noto Sans Bengali", Arial, sans-serif;
+  --shadow-card: 0 4px 16px rgba(32, 53, 47, 0.06);
+  --shadow-card-hover: 0 10px 28px rgba(32, 53, 47, 0.12);
+  --shadow-fab: 0 8px 24px rgba(237, 99, 51, 0.4);
+}
+
+:root {
+  /* Compatibility aliases for existing semantic CSS. New UI uses Tailwind tokens. */
+  --orange: var(--color-brand-orange);
+  --orange-dark: var(--color-brand-orange-dark);
+  --orange-soft: var(--color-brand-orange-soft);
+  --navy: var(--color-brand-navy);
+  --ink: var(--color-brand-ink);
+  --muted: var(--color-brand-muted);
+  --line: var(--color-brand-line);
+  --bg: var(--color-brand-bg);
+  --green: var(--color-brand-green);
+  --green-soft: var(--color-brand-green-soft);
+  --radius: 14px;
+  --shadow: 0 8px 32px rgba(7, 63, 60, 0.07);
+}

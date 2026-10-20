@@ -1,32 +1,15 @@
 "use client";
 
-import {
-  useAction,
-  useI18n,
-  useSession,
-  useToast,
-} from "@/components/providers";
-import { Avatar, PublicFooter, PublicHeader } from "@/components/shell";
-import {
-  BackLink,
-  Button,
-  Empty,
-  ErrorState,
-  Loading,
-  PageHeading,
-  Pagination,
-  Panel,
-} from "@/components/ui";
+import { useI18n, useSession } from "@/components/providers";
+import { PublicFooter, PublicHeader } from "@/components/shell";
+import { ErrorState, PageHeading, Pagination } from "@/components/ui";
 import { useResource } from "@/hooks/use-resource";
-import { api, money } from "@/lib/api";
-import type { Paged, Product, Row } from "@/lib/types";
+import type { Paged, Product } from "@/lib/types";
 import {
   ArrowRight,
   Camera,
-  Check,
   CheckCircle2,
   Edit3,
-  Heart,
   HeartHandshake,
   Home as HomeIcon,
   Lock,
@@ -38,7 +21,6 @@ import {
   RotateCcw,
   Search,
   SearchX,
-  ShieldCheck,
   Shirt,
   ShoppingBag,
   ShoppingCart,
@@ -46,212 +28,14 @@ import {
   Sparkles,
   Sofa,
   Apple,
-  Store,
   TrendingUp,
   Truck,
 } from "lucide-react";
-import Image from "next/image";
-import { ProductMedia } from "@/components/product-media";
 import Link from "next/link";
 import { useState } from "react";
-import { useCart } from "./cart";
-import { toBanglaDigits, discountPercent } from "@/lib/bangla";
-
-function getCategories(t: (key: string) => string) {
-  return [
-    { id: "all", label: t("marketplace.categories.all") },
-    { id: "fashion", label: t("marketplace.categories.fashion") },
-    { id: "home", label: t("marketplace.categories.home") },
-    { id: "electronics", label: t("marketplace.categories.electronics") },
-    { id: "beauty", label: t("marketplace.categories.beauty") },
-    { id: "food", label: t("marketplace.categories.food") },
-    { id: "other", label: t("marketplace.categories.other") },
-  ];
-}
-
-function localizedNumber(value: number | string, locale: "bn" | "en") {
-  const formatted =
-    typeof value === "number" ? value.toLocaleString("en-BD") : String(value);
-  return locale === "bn" ? toBanglaDigits(formatted) : formatted;
-}
-
-function localizedPrice(value: number, locale: "bn" | "en") {
-  return `৳ ${localizedNumber(value, locale)}`;
-}
-
-export function PackageArt() {
-  const { t } = useI18n();
-  return (
-    <div
-      className="relative flex h-64 w-72 items-center justify-center"
-      aria-hidden="true"
-    >
-      {/* Decorative concentric pulse circles */}
-      <div className="absolute h-56 w-56 rounded-full border border-dashed border-white/30" />
-      <div className="absolute h-64 w-64 rounded-full border border-white/20" />
-
-      {/* Main Parcel Box */}
-      <div className="relative z-10 flex h-36 w-44 -rotate-6 flex-col justify-between rounded-2xl bg-[#e9c49f] p-4 text-[#784d29] shadow-2xl ring-2 ring-white/40">
-        <div className="flex items-center justify-between">
-          <div className="h-6 w-12 rounded bg-[#f5d9bc]" />
-          <Package className="h-6 w-6 text-[#9e6538]" />
-        </div>
-        <div className="space-y-1">
-          <div className="h-1.5 w-16 rounded bg-[#cca27a]" />
-          <div className="h-1.5 w-10 rounded bg-[#cca27a]" />
-        </div>
-        <div className="flex items-center justify-between border-t border-[#d8ae86] pt-2 text-[10px] font-bold">
-          <span>PICKPARCEL</span>
-          <span>BD 🇧🇩</span>
-        </div>
-      </div>
-
-      {/* Floating Trust Badge 1 */}
-      <div className="absolute -bottom-1 -left-2 z-20 flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-brand-navy shadow-lg ring-1 ring-black/5 -rotate-3">
-        <CheckCircle2 className="h-4 w-4 text-brand-green" />
-        <div>
-          <strong className="block text-[11px] leading-tight">
-            {t("marketplace.home.deliverySuccess")}
-          </strong>
-          <span className="text-[10px] text-brand-muted font-normal">
-            {t("marketplace.home.deliveryTime")}
-          </span>
-        </div>
-      </div>
-
-      {/* Floating Trust Badge 2 */}
-      <div className="absolute top-1 -right-2 z-20 flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-brand-navy shadow-lg ring-1 ring-black/5 rotate-3">
-        <Truck className="h-4 w-4 text-brand-orange" />
-        <div>
-          <strong className="block text-[11px] leading-tight">
-            {t("marketplace.home.liveTracking")}
-          </strong>
-          <span className="text-[10px] text-brand-muted font-normal">
-            {t("marketplace.home.realtimeUpdates")}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function ProductCard({ product: p }: { product: Product }) {
-  const cart = useCart();
-  const toast = useToast();
-  const { t, locale } = useI18n();
-  const [liked, setLiked] = useState(false);
-  const [added, setAdded] = useState(false);
-
-  const discount = p.discount_percent
-    ? Math.round(Number(p.discount_percent))
-    : discountPercent(Number(p.effective_price), Number(p.price));
-
-  const handleAddToCart = () => {
-    cart.add({
-      product_id: p.id,
-      seller_id: p.user_id,
-      quantity: 1,
-      name: p.name,
-      price: p.effective_price,
-      image_url: p.image_url,
-      seller_name: p.seller_name || "Seller",
-    });
-    setAdded(true);
-    toast(t("marketplace.addedToBag"));
-    setTimeout(() => setAdded(false), 1200);
-  };
-
-  return (
-    <article className="product-tile group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white">
-      <div className="relative aspect-square overflow-hidden bg-[#f2f4ef]">
-        <Link href={`/products/${p.id}`} className="block h-full w-full">
-          <ProductMedia src={p.image_url} alt={p.name} />
-        </Link>
-        {discount > 0 && (
-          <span className="product-discount-badge absolute left-3 top-3 rounded-full bg-brand-orange px-2 py-1 text-[12px] font-semibold leading-none text-white">
-            {localizedNumber(discount, locale)}
-            {t("marketplace.offDiscount")}
-          </span>
-        )}
-        <button
-          type="button"
-          onClick={() => setLiked((v) => !v)}
-          aria-pressed={liked}
-          aria-label={
-            liked
-              ? t("marketplace.home.wishlistRemove")
-              : t("marketplace.home.wishlistAdd")
-          }
-          className="product-wishlist-button absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/95 shadow-sm transition-transform duration-150 active:scale-90">
-            <Heart
-              className={`h-[18px] w-[18px] transition-colors duration-150 ${
-                liked
-                  ? "fill-brand-orange text-brand-orange"
-                  : "text-brand-navy"
-              }`}
-            />
-          </span>
-        </button>
-      </div>
-
-      <div className="flex flex-1 flex-col p-3 md:p-4">
-        <Link href={`/products/${p.id}`}>
-          <h3 className="product-tile-title line-clamp-2 min-h-[2.8em] text-[13.5px] sm:text-[14px] font-semibold leading-snug text-brand-ink transition group-hover:text-brand-orange">
-            {p.name}
-          </h3>
-        </Link>
-
-        {p.seller_public_id && (
-          <Link
-            className="mt-1 flex min-w-0 items-center gap-1 text-[12px] text-brand-muted hover:text-brand-orange md:text-[13px]"
-            href={`/sellers/${p.seller_public_id}`}
-          >
-            <Store className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">
-              {p.seller_name || t("marketplace.home.sellerFallback")}
-            </span>
-            {!!p.seller_verified && (
-              <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-brand-green" />
-            )}
-          </Link>
-        )}
-
-        <div className="mt-auto flex items-end justify-between gap-1.5 pt-3">
-          <div className="leading-tight">
-            <p className="product-current-price text-[16px] font-bold text-brand-navy sm:text-[18px]">
-              {localizedPrice(Number(p.effective_price), locale)}
-            </p>
-            {Number(p.effective_price) < Number(p.price) && (
-              <p className="product-original-price text-[12px] text-brand-muted line-through md:text-[13px]">
-                {localizedPrice(Number(p.price), locale)}
-              </p>
-            )}
-          </div>
-          <button
-            type="button"
-            aria-label={t("marketplace.home.addProductToBag", {
-              product: p.name,
-            })}
-            onClick={handleAddToCart}
-            className={`product-add-button flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white transition-[background-color,transform] duration-150 active:scale-90 ${
-              added
-                ? "bg-brand-green"
-                : "bg-brand-orange hover:bg-brand-orange-dark shadow-sm"
-            }`}
-          >
-            {added ? (
-              <Check className="h-5 w-5" aria-hidden="true" />
-            ) : (
-              <Plus className="h-5 w-5" aria-hidden="true" />
-            )}
-          </button>
-        </div>
-      </div>
-    </article>
-  );
-}
+import { useCart } from "../cart";
+import { getCategories, localizedNumber } from "./format";
+import { ProductCard } from "./product-card";
 
 export function CatalogScreen({
   home = false,
@@ -771,8 +555,13 @@ export function CatalogScreen({
                     className="button primary inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-brand-orange px-6 text-sm font-bold !text-white shadow-md shadow-brand-orange/20 transition hover:bg-brand-orange-dark active:scale-95"
                     style={{ color: "#ffffff" }}
                   >
-                    <PackagePlus className="h-4 w-4" style={{ color: "#ffffff" }} />
-                    <span style={{ color: "#ffffff" }}>{t("marketplace.home.postProduct")}</span>
+                    <PackagePlus
+                      className="h-4 w-4"
+                      style={{ color: "#ffffff" }}
+                    />
+                    <span style={{ color: "#ffffff" }}>
+                      {t("marketplace.home.postProduct")}
+                    </span>
                   </Link>
                 </div>
 
@@ -780,7 +569,9 @@ export function CatalogScreen({
                 {Boolean(search || category !== "all") && (
                   <div className="empty-suggestions">
                     <p>
-                      {locale === "bn" ? "জনপ্রিয় ক্যাটাগরিগুলো দেখুন:" : "Or explore categories:"}
+                      {locale === "bn"
+                        ? "জনপ্রিয় ক্যাটাগরিগুলো দেখুন:"
+                        : "Or explore categories:"}
                     </p>
                     <div className="empty-suggestions-list">
                       {categories
@@ -930,395 +721,6 @@ export function CatalogScreen({
       {/* Spacer to guarantee bottom nav never covers footer or content */}
       <div className="h-16 md:hidden" aria-hidden="true" />
 
-      <PublicFooter />
-    </>
-  );
-}
-
-export function ProductDetailScreen({ id }: { id: string }) {
-  const { data, error, loading, reload } = useResource<{
-    product: Product;
-    seller: Row;
-  }>(`/products/${id}`);
-  const [quantity, setQuantity] = useState(1);
-  const cart = useCart();
-  const toast = useToast();
-  const { t, locale } = useI18n();
-  return (
-    <>
-      <PublicHeader />
-      <main className="public-container">
-        <BackLink
-          href="/products"
-          label={
-            locale === "bn" ? "মার্কেটপ্লেসে ফিরে যান" : "Back to discoveries"
-          }
-        />
-        {loading ? (
-          <Loading />
-        ) : error ? (
-          <ErrorState message={error} retry={reload} />
-        ) : (
-          data && (
-            <div className="product-detail">
-              <div className="product-detail-image">
-                <ProductMedia
-                  key={data.product.image_url}
-                  src={data.product.image_url}
-                  alt={data.product.name}
-                  detail
-                />
-              </div>
-              <div>
-                <span className="eyebrow">
-                  {data.product.category} ·{" "}
-                  {locale === "bn" ? "নির্বাচিত পণ্য" : "A LOCAL DISCOVERY"}
-                </span>
-                <h1>{data.product.name}</h1>
-                <p>
-                  {data.product.description ||
-                    (locale === "bn"
-                      ? "আমাদের কমিউনিটির একজন স্বাধীন বিক্রেতার চমৎকার পণ্য।"
-                      : "A little something from an independent seller in our community.")}
-                </p>
-                <div className="detail-price">
-                  {money(data.product.effective_price)}
-                  {Number(data.product.effective_price) <
-                    Number(data.product.price) && (
-                    <del
-                      className="muted"
-                      style={{ fontSize: 18, marginLeft: 15 }}
-                    >
-                      {money(data.product.price)}
-                    </del>
-                  )}
-                </div>
-                <div className="button-row">
-                  <div className="quantity">
-                    <button
-                      aria-label="Decrease quantity"
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    >
-                      −
-                    </button>
-                    <span>{quantity}</span>
-                    <button
-                      aria-label="Increase quantity"
-                      onClick={() => setQuantity(Math.min(99, quantity + 1))}
-                    >
-                      +
-                    </button>
-                  </div>
-                  <Button
-                    onClick={() => {
-                      cart.add({
-                        product_id: data.product.id,
-                        seller_id: data.product.user_id,
-                        quantity,
-                        name: data.product.name,
-                        price: data.product.effective_price,
-                        image_url: data.product.image_url,
-                        seller_name: String(data.seller.name),
-                      });
-                      toast(t("marketplace.addedToBag"));
-                    }}
-                  >
-                    <ShoppingBag size={17} />
-                    {locale === "bn" ? "ব্যাগে যোগ করুন" : "Add to bag"}
-                  </Button>
-                </div>
-                <div className="seller-box">
-                  <Avatar name={String(data.seller.name)} />
-                  <div>
-                    <strong>
-                      {String(data.seller.name)}{" "}
-                      {!!data.seller.verified && (
-                        <ShieldCheck size={13} color="var(--green)" />
-                      )}
-                    </strong>
-                    <p>
-                      <MapPin size={10} />{" "}
-                      {String(
-                        data.seller.district ||
-                          (locale === "bn" ? "বাংলাদেশ" : "Bangladesh"),
-                      )}
-                    </p>
-                  </div>
-                  <Link
-                    className="button secondary"
-                    href={`/sellers/${data.seller.public_id}`}
-                  >
-                    {locale === "bn" ? "দোকান ভিজিট করুন" : "Visit shop"}{" "}
-                    <ArrowRight size={13} />
-                  </Link>
-                </div>
-                <p style={{ fontSize: 11, marginTop: 25 }}>
-                  {locale === "bn"
-                    ? "ডেলিভারির পূর্বে প্রতিটি অর্ডার বিক্রেতা দ্বারা যাচাই করা হয়। চেকআউটে চূড়ান্ত ডেলিভারি চার্জ প্রদর্শিত হবে।"
-                    : "Each order is confirmed by the seller before delivery. Final delivery charges are shown at checkout."}
-                </p>
-              </div>
-            </div>
-          )
-        )}
-      </main>
-      <PublicFooter />
-    </>
-  );
-}
-export function CartScreen() {
-  const cart = useCart();
-  const { session } = useSession();
-  const { run, busy } = useAction();
-  const { t, locale } = useI18n();
-  const [payment, setPayment] = useState("cod");
-  const [agreed, setAgreed] = useState(false);
-  const [quote, setQuote] = useState<{
-    fingerprint: string;
-    total: string;
-    groups: {
-      seller_name: string;
-      subtotal: string;
-      delivery_charge: string;
-      total: string;
-    }[];
-    cartKey: string;
-  }>();
-  const cartKey = JSON.stringify({
-    items: cart.items.map((i) => ({
-      product_id: i.product_id,
-      quantity: i.quantity,
-    })),
-    payment_method: payment,
-  });
-  const reviewed = quote?.cartKey === cartKey ? quote : undefined;
-  const [orders, setOrders] = useState<number[]>();
-  const subtotal = cart.items.reduce(
-    (sum, i) => sum + Number(i.price) * i.quantity,
-    0,
-  );
-  return (
-    <>
-      <PublicHeader />
-      <main className="public-container">
-        <PageHeading
-          eyebrow={t("marketplace.headingEyebrow")}
-          title={t("marketplace.cart.title")}
-          description={t("marketplace.cart.subtitle")}
-        />
-        {orders ? (
-          <Panel>
-            <Empty
-              title={t("marketplace.cart.orderPlaced")}
-              description={
-                locale === "bn"
-                  ? `অর্ডার নম্বর ${orders.map((i) => "#" + i).join(", ")} সফলভাবে সাবমিট হয়েছে। বিক্রেতা নিশ্চিত করলে আপনাকে জানানো হবে।`
-                  : `Order ${orders.map((i) => "#" + i).join(", ")} placed. You’ll hear from us when it’s confirmed.`
-              }
-              action={
-                <Link href="/dashboard/orders" className="button primary">
-                  {t("nav.customer.orders")} <ArrowRight size={15} />
-                </Link>
-              }
-            />
-          </Panel>
-        ) : cart.items.length ? (
-          <div className="detail-grid">
-            <Panel>
-              {cart.items.map((i) => (
-                <div className="cart-row" key={i.product_id}>
-                  {i.image_url ? (
-                    <Image
-                      src={i.image_url}
-                      alt={i.name}
-                      width={100}
-                      height={100}
-                      unoptimized
-                    />
-                  ) : (
-                    <Package size={45} />
-                  )}
-                  <div>
-                    <Link href={`/products/${i.product_id}`}>
-                      <h3>{i.name}</h3>
-                    </Link>
-                    <p>{i.seller_name}</p>
-                    <button
-                      className="text-link"
-                      style={{
-                        background: "none",
-                        border: 0,
-                        padding: 0,
-                        marginTop: 8,
-                      }}
-                      onClick={() => cart.remove(i.product_id)}
-                    >
-                      {t("common.remove")}
-                    </button>
-                  </div>
-                  <div className="price-row">
-                    <div className="quantity">
-                      <button
-                        aria-label={`Decrease ${i.name} quantity`}
-                        onClick={() =>
-                          cart.quantity(i.product_id, i.quantity - 1)
-                        }
-                      >
-                        −
-                      </button>
-                      <span>{i.quantity}</span>
-                      <button
-                        aria-label={`Increase ${i.name} quantity`}
-                        onClick={() =>
-                          cart.quantity(i.product_id, i.quantity + 1)
-                        }
-                      >
-                        +
-                      </button>
-                    </div>
-                    <strong style={{ marginLeft: 16 }}>
-                      {money(Number(i.price) * i.quantity)}
-                    </strong>
-                  </div>
-                </div>
-              ))}
-            </Panel>
-            <Panel title={t("marketplace.cart.summaryTitle")}>
-              <div className="cart-summary">
-                <div className="key-value">
-                  <span>{t("marketplace.cart.itemsSubtotal")}</span>
-                  <strong>{money(subtotal)}</strong>
-                </div>
-                <div className="key-value">
-                  <span>{t("marketplace.cart.deliveryEstimate")}</span>
-                  <strong>
-                    {locale === "bn"
-                      ? "চেকআউটে নির্ধারিত হবে"
-                      : "Calculated at checkout"}
-                  </strong>
-                </div>
-                <p style={{ fontSize: 11, marginTop: 16 }}>
-                  {t("marketplace.cart.deliveryNote")}
-                </p>
-                <label className="field" style={{ marginBottom: 20 }}>
-                  <span>{t("marketplace.cart.paymentMethod")}</span>
-                  <select
-                    value={payment}
-                    onChange={(e) => setPayment(e.target.value)}
-                  >
-                    <option value="cod">
-                      {t("marketplace.cart.paymentCod")}
-                    </option>
-                    <option value="prepaid">
-                      {t("marketplace.cart.paymentPrepaid")}
-                    </option>
-                  </select>
-                </label>
-                {session?.user ? (
-                  <>
-                    <Button
-                      tone="secondary"
-                      className="full-width"
-                      disabled={busy}
-                      onClick={() =>
-                        void run(async () => {
-                          const result = await api.post<
-                            Omit<NonNullable<typeof quote>, "cartKey">
-                          >("/orders/quote", JSON.parse(cartKey));
-                          setQuote({ ...result, cartKey });
-                        }, t("marketplace.cart.pricesReviewed"))
-                      }
-                    >
-                      {t("marketplace.cart.reviewPrices")}
-                    </Button>
-                    {reviewed && (
-                      <div style={{ margin: "20px 0" }}>
-                        {reviewed.groups.map((g, i) => (
-                          <div key={i}>
-                            <h4>{g.seller_name}</h4>
-                            <p>
-                              {locale === "bn" ? "পণ্য" : "Items"}{" "}
-                              {money(g.subtotal)} +{" "}
-                              {t("marketplace.cart.deliveryLabel")}{" "}
-                              {money(g.delivery_charge)}
-                            </p>
-                          </div>
-                        ))}
-                        <div className="key-value">
-                          <strong>{t("marketplace.cart.orderTotal")}</strong>
-                          <strong>{money(reviewed.total)}</strong>
-                        </div>
-                      </div>
-                    )}
-                    <label
-                      className="checkbox-field field"
-                      style={{ margin: "20px 0" }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={agreed}
-                        onChange={(e) => setAgreed(e.target.checked)}
-                      />
-                      <span>
-                        <Link
-                          href="/terms"
-                          target="_blank"
-                          className="text-link"
-                        >
-                          {t("footer.terms")}
-                        </Link>{" "}
-                        {t("marketplace.cart.termsAgree")}
-                      </span>
-                    </label>
-                    <Button
-                      className="full-width"
-                      disabled={busy || !reviewed || !agreed}
-                      onClick={async () => {
-                        await run(async () => {
-                          const result = await api.post<{
-                            order_ids: number[];
-                          }>("/orders", {
-                            items: cart.items.map((i) => ({
-                              product_id: i.product_id,
-                              quantity: i.quantity,
-                            })),
-                            payment_method: payment,
-                            fingerprint: reviewed?.fingerprint,
-                            terms_accepted: agreed,
-                          });
-                          setOrders(result.order_ids);
-                          cart.clear();
-                        }, t("marketplace.cart.orderPlaced"));
-                      }}
-                    >
-                      {t("marketplace.cart.placeOrder")}{" "}
-                      <ArrowRight size={16} />
-                    </Button>
-                  </>
-                ) : (
-                  <Link
-                    className="button primary full-width"
-                    href="/login?return=/cart"
-                  >
-                    {t("marketplace.cart.signInToCheckout")}{" "}
-                    <ArrowRight size={16} />
-                  </Link>
-                )}
-              </div>
-            </Panel>
-          </div>
-        ) : (
-          <Empty
-            title={t("marketplace.cart.emptyTitle")}
-            description={t("marketplace.cart.emptyDesc")}
-            action={
-              <Link className="button primary" href="/products">
-                {t("marketplace.cart.emptyAction")} <ArrowRight size={15} />
-              </Link>
-            }
-          />
-        )}
-      </main>
       <PublicFooter />
     </>
   );

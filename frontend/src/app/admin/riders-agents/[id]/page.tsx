@@ -1,4 +1,4 @@
-import { MemberReportScreen } from "@/features/admin/screens";
+import { MemberReportScreen } from "@/features/admin/people";
 import { Suspense } from "react";
 export default async function Page({
   params,

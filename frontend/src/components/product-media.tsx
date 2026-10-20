@@ -64,10 +64,12 @@ export function ProductMedia({
   src,
   alt,
   detail = false,
+  eager = false,
 }: {
   src?: string | null;
   alt: string;
   detail?: boolean;
+  eager?: boolean;
 }) {
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -93,6 +95,8 @@ export function ProductMedia({
             width={700}
             height={500}
             unoptimized
+            loading={eager ? "eager" : "lazy"}
+            fetchPriority={eager ? "high" : undefined}
             onError={() => setFailed(true)}
           />
         ) : (
@@ -132,6 +136,8 @@ export function ProductMedia({
       width={detail ? 700 : 400}
       height={detail ? 700 : 350}
       unoptimized
+      loading={eager ? "eager" : "lazy"}
+      fetchPriority={eager ? "high" : undefined}
       onError={() => setFailed(true)}
     />
   );

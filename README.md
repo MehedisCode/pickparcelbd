@@ -1,5 +1,7 @@
 # PickParcelBD
 
+The refreshed social marketplace is the primary [frontend](frontend/README.md). Run it with `npm run dev`. Future staging artifacts package this frontend; the hosted staging site changes only after a manual upload.
+
 Next.js / React / TypeScript interface, Laravel 13 API, and MariaDB production database. Development uses a separate SQLite file and fictional accounts. The existing PHP website is untouched.
 
 The cPanel staging environment is active. See [cPanel staging deployment](docs/deployment/cpanel-staging.md) for the manual-upload procedure and [implementation status](docs/project/implementation-status.md) for verified workflows and outstanding work.

@@ -41,6 +41,13 @@ class PublicController extends Controller
         if ($r->filled('seller')) {
             $q->where('users.public_id', $r->query('seller'));
         }
+        if ($r->boolean('following')) {
+            abort_unless($r->user(), 401);
+            $q->whereExists(fn ($follow) => $follow->selectRaw('1')
+                ->from('follows')
+                ->whereColumn('follows.following_id', 'products.user_id')
+                ->where('follows.follower_id', $r->user()->id));
+        }
         if ($r->boolean('mine')) {
             $u = $r->user();
             abort_unless($u, 401);

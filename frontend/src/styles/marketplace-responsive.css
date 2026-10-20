@@ -1,0 +1,276 @@
+/* Marketplace responsive states and supporting layouts. */
+@layer components {
+  @media (min-width: 640px) {
+    .home-hero #hero-title {
+      font-size: 40px;
+    }
+    .home-hero .home-hero-description {
+      font-size: 17px;
+    }
+    .product-tile .product-current-price {
+      font-size: 18px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .marketplace-header-inner {
+      padding-inline: 32px;
+    }
+    #categories .category-section-heading,
+    #discover .product-section-heading {
+      font-size: 26px;
+    }
+    #discover {
+      margin-top: 80px;
+    }
+    #categories .section-description,
+    #discover .section-description {
+      font-size: 15px;
+    }
+    .product-tile .product-tile-title {
+      font-size: 15px;
+    }
+    .product-tile .product-original-price {
+      font-size: 13px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .home-hero #hero-title {
+      font-size: 48px;
+      line-height: 1.2;
+    }
+  }
+
+  @media (max-width: 960px) {
+    .marketplace-parcel-action {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .marketplace-post-action,
+    .marketplace-header-search,
+    .marketplace-header-divider {
+      display: none;
+    }
+    .marketplace-get-started-btn {
+      display: inline-flex;
+    }
+    .marketplace-mobile-menu-btn {
+      display: inline-flex;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .announcement {
+      padding: 7px 16px;
+    }
+    .public-header {
+      min-height: 66px;
+      padding: 11px 14px;
+      gap: 10px;
+    }
+    .public-header .brand {
+      gap: 8px;
+      font-size: 19px;
+      letter-spacing: -0.8px;
+    }
+    .public-header .brand-mark {
+      width: 37px;
+      height: 38px;
+      border-radius: 11px 11px 11px 4px;
+    }
+    .public-header .brand small,
+    .public-header .header-actions > .icon-button,
+    .public-header .header-actions > .button.primary {
+      display: none;
+    }
+    .public-header .lang-toggle {
+      width: 38px;
+      height: 38px;
+      justify-content: center;
+      padding: 0;
+    }
+    .public-header .lang-toggle span,
+    .announcement > a {
+      display: none;
+    }
+    .public-header .header-actions {
+      gap: 4px;
+    }
+    .marketplace-header-inner {
+      gap: 12px;
+    }
+    .marketplace-header .brand {
+      font-size: 19px;
+    }
+    .marketplace-header .brand-mark {
+      width: 37px;
+      height: 38px;
+    }
+    .marketplace-header .brand small {
+      display: none;
+    }
+    .marketplace-header-search,
+    .marketplace-parcel-action,
+    .marketplace-post-action,
+    .marketplace-get-started-btn,
+    .marketplace-header-divider {
+      display: none;
+    }
+    .marketplace-mobile-menu-btn {
+      display: inline-flex;
+    }
+    .marketplace-header-actions {
+      margin-left: auto;
+      gap: 4px;
+    }
+    .marketplace-language-switch {
+      height: 44px;
+    }
+    .marketplace-language-switch button {
+      height: 36px;
+      min-width: 44px;
+      padding-inline: 10px;
+    }
+    .marketplace-cart-action {
+      width: 44px;
+      height: 44px;
+    }
+    .market-mobile-search {
+      position: relative;
+      display: flex;
+      height: 44px;
+      align-items: center;
+      gap: 10px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+      color: var(--muted);
+    }
+    .market-mobile-search input {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      font-size: 13px;
+      outline: none;
+    }
+    .public-header nav.open {
+      top: 102px;
+      left: 14px;
+      right: 14px;
+    }
+    .market-home {
+      padding-top: 0;
+    }
+    .home-hero {
+      margin-top: 16px;
+      border-radius: 22px;
+    }
+    .trust-strip {
+      padding-block: 32px;
+    }
+    .home-hero h1 {
+      max-width: 300px;
+    }
+    .home-panel {
+      border-radius: 18px;
+    }
+    .category-tile {
+      min-height: 112px;
+      padding-inline: 8px;
+    }
+    .seller-spotlight {
+      border-radius: 22px;
+    }
+    .seller-spotlight #seller-spotlight-title {
+      font-size: 22px;
+    }
+    .quick-step:not(:last-child)::after {
+      display: none;
+    }
+    .trust-strip > div:nth-child(odd) {
+      border-right: 0;
+    }
+    .trust-strip > div:nth-child(-n + 2) {
+      border-bottom: 0;
+    }
+    .product-tile:hover {
+      transform: none;
+    }
+    .public-footer-v2 {
+      margin-top: 56px;
+      padding: 36px 20px 88px;
+    }
+    .public-footer-v2 > .public-footer-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 30px 20px;
+    }
+    .public-footer-brand {
+      grid-column: 1 / -1;
+    }
+    .public-footer-help {
+      grid-column: 1 / -1;
+    }
+    .public-footer-v2 > .public-footer-bottom {
+      flex-direction: column;
+      gap: 4px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .category-tile,
+    .product-tile {
+      transition: none;
+    }
+  }
+
+  .external-media {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    min-height: 200px;
+  }
+  .external-media > span {
+    position: absolute;
+    bottom: 18px;
+    display: flex;
+    gap: 8px;
+    background: white;
+    padding: 6px 10px;
+    border-radius: 8px;
+  }
+  .terms-content {
+    line-height: 1.85;
+  }
+  .terms-content h2 {
+    margin-top: 28px;
+    font-size: 18px;
+  }
+  details {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .section-intro {
+    padding: 45px 0 30px;
+  }
+  .section-intro h1 {
+    font-size: 38px;
+  }
+  .route-line {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 25px;
+  }
+  .receive-preview {
+    margin-top: 24px;
+  }
+}
