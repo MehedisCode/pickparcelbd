@@ -651,75 +651,64 @@ export function CatalogScreen({
         )}
       </main>
 
-      {/* 8. MOBILE BOTTOM NAVIGATION (STICKY ON MOBILE ONLY) */}
+      {/* Mobile navigation */}
       <nav
         aria-label={t("marketplace.home.mobileNav")}
-        className="fixed bottom-0 left-0 right-0 z-40 block border-t border-brand-line bg-white/95 pb-safe backdrop-blur-md md:hidden"
+        className="catalog-bottom-nav mobile-bottom-nav md:hidden"
       >
-        <div className="flex h-16 items-center justify-around px-2">
-          <Link
-            href="/"
-            className="flex flex-1 flex-col items-center justify-center text-brand-orange"
-          >
-            <HomeIcon className="h-5 w-5" />
-            <span className="mt-1 text-[10px] font-bold">
-              {t("marketplace.home.home")}
-            </span>
-          </Link>
-
-          <Link
-            href="#top-search"
-            className="flex flex-1 flex-col items-center justify-center text-brand-muted hover:text-brand-navy"
-          >
-            <Search className="h-5 w-5" />
-            <span className="mt-1 text-[10px] font-medium">
-              {t("marketplace.home.search")}
-            </span>
-          </Link>
-
-          {/* Elevated Floating "পোস্ট করুন" Button */}
-          <div className="relative -top-3 flex flex-1 flex-col items-center justify-center">
-            <Link
-              href="/dashboard/products/new"
-              aria-label={t("marketplace.home.postProduct")}
-              className="flex h-13 w-13 items-center justify-center rounded-full bg-brand-orange text-white shadow-[0_8px_20px_rgba(237,99,51,0.40)] ring-4 ring-white transition active:scale-90"
-            >
-              <Plus className="h-7 w-7" strokeWidth={2.6} />
-            </Link>
-            <span className="mt-0.5 text-[10px] font-bold text-brand-orange">
-              {t("marketplace.home.post")}
-            </span>
-          </div>
-
-          <Link
-            href="/dashboard/parcels/new"
-            className="flex flex-1 flex-col items-center justify-center text-brand-muted hover:text-brand-navy"
-          >
-            <Truck className="h-5 w-5" />
-            <span className="mt-1 text-[10px] font-medium">
-              {t("marketplace.home.parcel")}
-            </span>
-          </Link>
-
-          <Link
-            href="/cart"
-            className="relative flex flex-1 flex-col items-center justify-center text-brand-muted hover:text-brand-navy"
-          >
-            <ShoppingCart className="h-5 w-5" />
+        <Link href="/" className="mobile-bottom-nav__item">
+          <span className="mobile-bottom-nav__icon">
+            <HomeIcon size={23} strokeWidth={2} />
+          </span>
+          <span className="mobile-bottom-nav__label">
+            {t("marketplace.home.home")}
+          </span>
+        </Link>
+        <Link href="#top-search" className="mobile-bottom-nav__item">
+          <span className="mobile-bottom-nav__icon">
+            <Search size={23} strokeWidth={2} />
+          </span>
+          <span className="mobile-bottom-nav__label">
+            {t("marketplace.home.search")}
+          </span>
+        </Link>
+        <Link
+          href="/dashboard/products/new"
+          aria-label={t("marketplace.home.postProduct")}
+          className="mobile-bottom-nav__item mobile-bottom-nav__post"
+        >
+          <span className="mobile-bottom-nav__post-icon">
+            <Plus size={28} strokeWidth={2.7} />
+          </span>
+          <span className="mobile-bottom-nav__label">
+            {t("marketplace.home.post")}
+          </span>
+        </Link>
+        <Link href="/dashboard/parcels/new" className="mobile-bottom-nav__item">
+          <span className="mobile-bottom-nav__icon">
+            <Truck size={23} strokeWidth={2} />
+          </span>
+          <span className="mobile-bottom-nav__label">
+            {t("marketplace.home.parcel")}
+          </span>
+        </Link>
+        <Link href="/cart" className="mobile-bottom-nav__item">
+          <span className="mobile-bottom-nav__icon">
+            <ShoppingCart size={23} strokeWidth={2} />
             {cartCount > 0 && (
-              <span className="absolute top-0 right-3 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-orange px-1 text-[9px] font-bold text-white">
+              <span className="mobile-bottom-nav__badge">
                 {localizedNumber(cartCount, locale)}
               </span>
             )}
-            <span className="mt-1 text-[10px] font-medium">
-              {t("marketplace.home.cart")}
-            </span>
-          </Link>
-        </div>
+          </span>
+          <span className="mobile-bottom-nav__label">
+            {t("marketplace.home.cart")}
+          </span>
+        </Link>
       </nav>
 
       {/* Spacer to guarantee bottom nav never covers footer or content */}
-      <div className="h-16 md:hidden" aria-hidden="true" />
+      <div className="h-24 md:hidden" aria-hidden="true" />
 
       <PublicFooter />
     </>
