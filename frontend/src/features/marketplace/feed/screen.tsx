@@ -18,6 +18,7 @@ import {
   MapPin,
   MessageCircle,
   PackagePlus,
+  Plus,
   Search,
   ShoppingCart,
   SlidersHorizontal,
@@ -519,33 +520,62 @@ export function SocialFeedScreen({
         </aside>
       </div>
       <nav
-        className="v2-bottom-nav"
+        className="v2-bottom-nav mobile-bottom-nav"
         aria-label={locale === "bn" ? "মোবাইল নেভিগেশন" : "Mobile navigation"}
       >
-        <Link href="/" className="active">
-          <Home size={23} />
-          <span>{locale === "bn" ? "হোম" : "Home"}</span>
+        <Link
+          href="/"
+          className="mobile-bottom-nav__item active"
+          aria-current="page"
+        >
+          <span className="mobile-bottom-nav__icon">
+            <Home size={23} strokeWidth={2.2} />
+          </span>
+          <span className="mobile-bottom-nav__label">
+            {locale === "bn" ? "হোম" : "Home"}
+          </span>
         </Link>
         <a
           href="#v2-search-input"
+          className="mobile-bottom-nav__item"
           onClick={() => document.getElementById("v2-search-input")?.focus()}
         >
-          <Search size={23} />
-          <span>{locale === "bn" ? "অনুসন্ধান" : "Search"}</span>
-        </a>
-        <Link href="/dashboard/products/new" className="v2-post-nav">
-          <span>
-            <CirclePlus size={29} />
+          <span className="mobile-bottom-nav__icon">
+            <Search size={23} strokeWidth={2} />
           </span>
-          <small>{locale === "bn" ? "পোস্ট" : "Post"}</small>
+          <span className="mobile-bottom-nav__label">
+            {locale === "bn" ? "অনুসন্ধান" : "Search"}
+          </span>
+        </a>
+        <Link
+          href="/dashboard/products/new"
+          className="mobile-bottom-nav__item mobile-bottom-nav__post"
+        >
+          <span className="mobile-bottom-nav__post-icon">
+            <Plus size={28} strokeWidth={2.7} />
+          </span>
+          <span className="mobile-bottom-nav__label">
+            {locale === "bn" ? "পোস্ট" : "Post"}
+          </span>
         </Link>
-        <Link href="/dashboard/parcels">
-          <Truck size={23} />
-          <span>{locale === "bn" ? "পার্সেল" : "Parcels"}</span>
+        <Link href="/dashboard/parcels" className="mobile-bottom-nav__item">
+          <span className="mobile-bottom-nav__icon">
+            <Truck size={23} strokeWidth={2} />
+          </span>
+          <span className="mobile-bottom-nav__label">
+            {locale === "bn" ? "পার্সেল" : "Parcels"}
+          </span>
         </Link>
-        <Link href={session?.user ? "/dashboard" : "/login"}>
-          <UserRound size={23} />
-          <span>{locale === "bn" ? "প্রোফাইল" : "Profile"}</span>
+        <Link
+          href={session?.user ? "/dashboard" : "/login"}
+          className="mobile-bottom-nav__item"
+        >
+          <span className="mobile-bottom-nav__icon">
+            <UserRound size={23} strokeWidth={2} />
+          </span>
+          <span className="mobile-bottom-nav__label">
+            {locale === "bn" ? "প্রোফাইল" : "Profile"}
+          </span>
         </Link>
       </nav>
       <div className="v2-home-footer">
