@@ -1,4 +1,4 @@
-import { FinanceScreen } from "@/features/admin/screens";
+import { FinanceScreen } from "@/features/admin/finance";
 import { Suspense } from "react";
 export default function Page() {
   return (

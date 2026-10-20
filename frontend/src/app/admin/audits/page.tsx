@@ -1,4 +1,4 @@
-import { AuditsScreen } from "@/features/admin/screens";
+import { AuditsScreen } from "@/features/admin/audits";
 import { Suspense } from "react";
 export default function Page() {
   return (

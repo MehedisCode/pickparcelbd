@@ -25,7 +25,8 @@ type Tracking = {
   events: { type: string; created_at: string }[];
 };
 export function TrackingScreen({ initialCode = "" }: { initialCode?: string }) {
-  const { t, locale } = useI18n();
+  const { t } = useI18n();
+  const notFoundLabel = t("tracking.notFound");
   const [code, setCode] = useState(initialCode);
   const [data, setData] = useState<Tracking>();
   const [busy, setBusy] = useState(false);
@@ -40,12 +41,12 @@ export function TrackingScreen({ initialCode = "" }: { initialCode?: string }) {
         })
         .catch((e) => {
           if (active)
-            setError(e instanceof Error ? e.message : t("tracking.notFound"));
+            setError(e instanceof Error ? e.message : notFoundLabel);
         });
     return () => {
       active = false;
     };
-  }, [initialCode, t("tracking.notFound")]);
+  }, [initialCode, notFoundLabel]);
   return (
     <>
       <PublicHeader />

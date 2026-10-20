@@ -1,4 +1,4 @@
-import { CatalogScreen } from "@/features/marketplace/catalog";
+import { SocialFeedScreen } from "@/features/marketplace/feed/screen";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 export default async function Page({
@@ -42,7 +42,7 @@ export default async function Page({
     redirect(sections[value("section")!]);
   return (
     <Suspense fallback={<p className="loading">Loading…</p>}>
-      <CatalogScreen home />
+      <SocialFeedScreen initialSearch={value("search") || ""} />
     </Suspense>
   );
 }

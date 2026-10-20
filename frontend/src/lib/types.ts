@@ -41,6 +41,7 @@ export type Product = {
   image_url: string | null;
   category: string;
   seller_name?: string;
+  seller_avatar?: string | null;
   seller_public_id?: string;
   seller_verified?: boolean;
   seller_district?: string;

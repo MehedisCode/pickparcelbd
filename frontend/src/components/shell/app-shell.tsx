@@ -2,6 +2,8 @@
 
 import { api } from "@/lib/api";
 import { memberRoles } from "@/lib/types";
+import { useI18n, useSession, useToast } from "@/components/providers";
+import { ErrorState, Loading } from "@/components/ui";
 import {
   ArrowDownLeft,
   ArrowRightLeft,
@@ -15,7 +17,6 @@ import {
   Heart,
   LayoutDashboard,
   LogOut,
-  MapPin,
   Menu,
   MessageCircle,
   Package,
@@ -24,299 +25,18 @@ import {
   Settings,
   ShieldCheck,
   ShoppingBag,
-  ShoppingCart,
   Store,
   Truck,
   Users,
   Wallet,
   X,
-  Languages,
-  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { useCart } from "@/features/marketplace/cart";
-import { useI18n, useSession, useToast } from "./providers";
-import { Button, ErrorState, Loading } from "./ui";
-
-export function LanguageSwitcher({ className = "" }: { className?: string }) {
-  const { locale, setLocale } = useI18n();
-  return (
-    <button
-      type="button"
-      className={`lang-toggle ${className}`}
-      onClick={() => setLocale(locale === "bn" ? "en" : "bn")}
-      aria-label={locale === "bn" ? "Switch to English" : "বাংলা ভাষায় দেখুন"}
-      title={locale === "bn" ? "Switch to English" : "বাংলা ভাষায় দেখুন"}
-    >
-      <Languages size={15} />
-      <span>{locale === "bn" ? "English" : "বাংলা"}</span>
-    </button>
-  );
-}
-
-export function Brand({ compact = false }: { compact?: boolean }) {
-  const { t } = useI18n();
-  return (
-    <Link href="/" className="brand">
-      <span className="brand-mark">
-        <Package size={compact ? 21 : 25} strokeWidth={2} />
-      </span>
-      <span>
-        PickParcel<span className="brand-bd">BD</span>
-        <small>{t("nav.brandTagline")}</small>
-      </span>
-    </Link>
-  );
-}
-export function Avatar({ name, size = "" }: { name: string; size?: string }) {
-  return (
-    <span className={`avatar ${size}`}>
-      {name
-        .trim()
-        .split(/\s+/)
-        .slice(0, 2)
-        .map((n) => n[0])
-        .join("")}
-    </span>
-  );
-}
-export function PublicHeader({
-  marketplaceSearch,
-}: {
-  marketplaceSearch?: {
-    value: string;
-    onChange: (value: string) => void;
-    onSubmit: () => void;
-    placeholder: string;
-    label: string;
-    clearLabel: string;
-    cartCount?: number;
-  };
-} = {}) {
-  const { session } = useSession();
-  const { t, locale, setLocale } = useI18n();
-  const router = useRouter();
-  const cart = useCart();
-  const [open, setOpen] = useState(false);
-  const [localQuery, setLocalQuery] = useState("");
-
-  const searchValue = marketplaceSearch ? marketplaceSearch.value : localQuery;
-  const handleSearchChange = (val: string) => {
-    if (marketplaceSearch) {
-      marketplaceSearch.onChange(val);
-    } else {
-      setLocalQuery(val);
-    }
-  };
-  const handleSearchSubmit = () => {
-    if (marketplaceSearch) {
-      marketplaceSearch.onSubmit();
-    } else {
-      router.push(`/?search=${encodeURIComponent(localQuery)}#discover`);
-    }
-  };
-  const cartCount =
-    marketplaceSearch?.cartCount ??
-    cart.items.reduce((sum, item) => sum + item.quantity, 0);
-
-  return (
-    <>
-      <header className="marketplace-header">
-        <div className="marketplace-header-inner">
-          <Brand />
-          <form
-            role="search"
-            className="marketplace-header-search"
-            onSubmit={(event) => {
-              event.preventDefault();
-              handleSearchSubmit();
-            }}
-          >
-            <label className="sr-only" htmlFor="marketplace-header-search">
-              {marketplaceSearch?.label || t("marketplace.home.search")}
-            </label>
-            <Search size={18} aria-hidden="true" />
-            <input
-              id="marketplace-header-search"
-              type="search"
-              value={searchValue}
-              onChange={(event) => handleSearchChange(event.target.value)}
-              placeholder={
-                marketplaceSearch?.placeholder ||
-                t("marketplace.home.searchProducts")
-              }
-            />
-            {searchValue && (
-              <button
-                type="button"
-                onClick={() => handleSearchChange("")}
-                aria-label={
-                  marketplaceSearch?.clearLabel ||
-                  t("marketplace.home.clearSearch")
-                }
-              >
-                <X size={16} />
-              </button>
-            )}
-          </form>
-
-          <div className="marketplace-header-actions">
-            <div
-              className="marketplace-language-switch"
-              role="group"
-              aria-label={t("nav.langSwitchAria")}
-            >
-              <button
-                type="button"
-                lang="bn"
-                aria-pressed={locale === "bn"}
-                onClick={() => setLocale("bn")}
-              >
-                বাং
-              </button>
-              <button
-                type="button"
-                lang="en"
-                aria-pressed={locale === "en"}
-                onClick={() => setLocale("en")}
-              >
-                EN
-              </button>
-            </div>
-            <Link
-              className="marketplace-parcel-action"
-              href="/dashboard/parcels/new"
-            >
-              <Truck size={18} />
-              {t("marketplace.home.bookParcel")}
-            </Link>
-            <Link
-              href="/cart"
-              className="marketplace-cart-action"
-              aria-label={t("nav.shoppingBagAria")}
-            >
-              <ShoppingCart size={20} />
-              {cartCount > 0 && <span>{cartCount}</span>}
-            </Link>
-            <Link
-              className="marketplace-post-action"
-              href="/dashboard/products/new"
-            >
-              <Plus size={18} />
-              {t("marketplace.home.postProduct")}
-            </Link>
-            <span className="marketplace-header-divider" aria-hidden="true" />
-            <Link
-              className="marketplace-get-started-btn"
-              href={session?.user ? "/dashboard" : "/login"}
-            >
-              {session?.user ? t("nav.myWorkspace") : t("nav.getStarted")}
-              <ChevronRight size={14} />
-            </Link>
-            <Button
-              tone="ghost"
-              className="marketplace-mobile-menu-btn"
-              aria-label={t("nav.toggleNavAria")}
-              onClick={() => setOpen(!open)}
-            >
-              {open ? <X size={20} /> : <Menu size={20} />}
-            </Button>
-          </div>
-        </div>
-
-        {open && (
-          <div className="marketplace-mobile-drawer">
-            <nav className="marketplace-mobile-nav">
-              <Link href="/" onClick={() => setOpen(false)}>
-                {t("nav.marketplace")}
-              </Link>
-              <Link href="/tracking" onClick={() => setOpen(false)}>
-                {t("nav.tracking")}
-              </Link>
-              <Link
-                href={
-                  session?.user ? "/ride-share" : "/login?return=/ride-share"
-                }
-                onClick={() => setOpen(false)}
-              >
-                {t("nav.rideShare")}
-              </Link>
-              <Link href="/help" onClick={() => setOpen(false)}>
-                {t("nav.help")}
-              </Link>
-              <div className="marketplace-mobile-nav-divider" />
-              <Link
-                href="/dashboard/parcels/new"
-                className="marketplace-mobile-action"
-                onClick={() => setOpen(false)}
-              >
-                <Truck size={18} />
-                {t("marketplace.home.bookParcel")}
-              </Link>
-              <Link
-                href="/dashboard/products/new"
-                className="marketplace-mobile-action primary"
-                onClick={() => setOpen(false)}
-              >
-                <Plus size={18} />
-                {t("marketplace.home.postProduct")}
-              </Link>
-              <Link
-                href={session?.user ? "/dashboard" : "/login"}
-                className="marketplace-mobile-action workspace"
-                onClick={() => setOpen(false)}
-              >
-                {session?.user ? t("nav.myWorkspace") : t("nav.getStarted")}
-              </Link>
-            </nav>
-          </div>
-        )}
-      </header>
-    </>
-  );
-}
-export function PublicFooter() {
-  const { t } = useI18n();
-  return (
-    <footer className="public-footer public-footer-v2">
-      <div className="public-footer-grid">
-        <div className="public-footer-brand">
-          <Brand compact />
-          <p>{t("footer.tagline")}</p>
-        </div>
-        <nav aria-label={t("nav.marketplace")}>
-          <strong>{t("nav.marketplace")}</strong>
-          <Link href="/products">{t("marketplace.home.browseProducts")}</Link>
-          <Link href="/#categories">{t("marketplace.home.allCategories")}</Link>
-          <Link href="/dashboard/products/new">
-            {t("marketplace.home.postProduct")}
-          </Link>
-        </nav>
-        <nav aria-label={t("footer.contact")}>
-          <strong>{t("footer.contact")}</strong>
-          <Link href="/tracking">{t("nav.tracking")}</Link>
-          <Link href="/help">{t("nav.help")}</Link>
-          <Link href="/terms">{t("footer.terms")}</Link>
-        </nav>
-        <div className="public-footer-help">
-          <strong>{t("nav.helpTitle")}</strong>
-          <p>{t("nav.helpSubtitle")}</p>
-          <Link href="/help">
-            <Headphones size={16} /> {t("nav.helpTalk")}
-          </Link>
-        </div>
-      </div>
-      <div className="public-footer-bottom">
-        <span>
-          © {new Date().getFullYear()} PickParcelBD · {t("footer.rights")}
-        </span>
-        <span>{t("footer.note")}</span>
-      </div>
-    </footer>
-  );
-}
+import { Brand, Avatar, LanguageSwitcher } from "./brand";
+import { PublicHeader } from "./public-header";
+import { PublicFooter } from "./public-footer";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { session, error, reload } = useSession();
@@ -446,7 +166,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className="button primary"
             href={`/login?return=${encodeURIComponent(path)}`}
           >
-            {locale === "bn" ? "প্রবেশ করতে সাইন ইন করুন" : "Sign in to continue"}{" "}
+            {locale === "bn"
+              ? "প্রবেশ করতে সাইন ইন করুন"
+              : "Sign in to continue"}{" "}
             <ChevronRight size={16} />
           </Link>
         </main>

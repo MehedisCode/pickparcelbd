@@ -1,4 +1,4 @@
-import { RecoveryScreen } from "@/features/admin/screens";
+import { RecoveryScreen } from "@/features/admin/recovery";
 import { Suspense } from "react";
 export default function Page() {
   return (

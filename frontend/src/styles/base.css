@@ -1,0 +1,133 @@
+/* Document defaults and shared motion helpers. */
+@layer base {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+    background: #eef0eb;
+  }
+  .shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.7),
+      transparent
+    );
+    animation: shimmer 1.4s infinite;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: "DM Sans", "Noto Sans Bengali", Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button {
+    cursor: pointer;
+    color: inherit;
+  }
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    outline-offset: 4px;
+  }
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--orange);
+    outline-offset: 4px;
+  }
+  input,
+  textarea,
+  select {
+    color: var(--ink);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #9aa29c;
+  }
+  h1,
+  h2,
+  h3,
+  p {
+    margin-top: 0;
+  }
+  h1 {
+    font-weight: 650;
+    letter-spacing: -1.2px;
+    font-size: 32px;
+    margin-bottom: 10px;
+    line-height: 1.18;
+  }
+  h2 {
+    font-size: 18px;
+    font-weight: 650;
+    letter-spacing: -0.3px;
+    margin: 0;
+  }
+  h3 {
+    font-size: 16px;
+    letter-spacing: -0.2px;
+  }
+  p {
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  small {
+    line-height: 1.6;
+  }
+  svg {
+    flex-shrink: 0;
+  }
+  input,
+  textarea,
+  select {
+    min-width: 0;
+  }
+  ::selection {
+    background: #f9d7c7;
+    color: var(--ink);
+  }
+}

@@ -1,0 +1,71 @@
+/* Dialogs, toasts, loading states, and skeletons. */
+@layer components {
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: #1c302865;
+    backdrop-filter: blur(3px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 25px;
+  }
+  .modal {
+    background: white;
+    max-width: 620px;
+    width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 20px 100px #0002;
+    max-height: 90vh;
+    overflow: auto;
+  }
+  .modal > .button-row,
+  .modal > p {
+    margin: 23px;
+  }
+  .modal .panel-heading h2 {
+    font-size: 17px;
+  }
+  .toast {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    z-index: 150;
+    background: var(--navy);
+    color: #fff8e9;
+    border: 1px solid #526448;
+    border-radius: 11px;
+    padding: 15px 20px;
+    box-shadow: 0 8px 40px #20352f24;
+    max-width: 90vw;
+    font-size: 12px;
+  }
+  .toast.error {
+    background: #8f432c;
+    border-color: #b86747;
+  }
+  .toast button {
+    background: none;
+    border: 0;
+    color: inherit;
+    font-size: 22px;
+    line-height: 1;
+  }
+  .skeleton {
+    background: linear-gradient(90deg, #f0f1e9 25%, #f8f9f3 50%, #f0f1e9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 10px;
+    height: 200px;
+  }
+  @keyframes shimmer {
+    to {
+      background-position: -200% 0;
+    }
+  }
+}
