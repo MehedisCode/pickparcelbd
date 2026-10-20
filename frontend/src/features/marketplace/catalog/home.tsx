@@ -654,7 +654,7 @@ export function CatalogScreen({
       {/* 8. MOBILE BOTTOM NAVIGATION (STICKY ON MOBILE ONLY) */}
       <nav
         aria-label={t("marketplace.home.mobileNav")}
-        className="catalog-bottom-nav fixed z-40 block border border-brand-line bg-white/95 backdrop-blur-md md:hidden"
+        className="catalog-bottom-nav fixed z-40 block border-t border-brand-line bg-white/95 backdrop-blur-md md:hidden"
       >
         <div className="flex h-16 items-center justify-around px-2">
           <Link
